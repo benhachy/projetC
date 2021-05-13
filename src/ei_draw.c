@@ -30,7 +30,7 @@ uint32_t		ei_map_rgba		(ei_surface_t surface, ei_color_t color){
 
         res = B * pow(2, ib * 8) + R * pow(2, ir * 8) + G * pow(2, ig * 8);
     }
-    printf("RES is %u\n", res);
+
     return res;
 
 }
@@ -129,11 +129,11 @@ void			ei_draw_polygon		(ei_surface_t			surface,
     first->point = first_point->point;
     struct tc_cell* tc = get_tc(first);
     struct tc_cell* tc_temp = tc;
-    struct tc_carac* tc_c_temp = (tc_carac*) malloc(sizeof(tc_carac));
+    struct tc_carac* tc_c_temp ;
     struct tca_cell* tca = NULL;
     int size = 0;
     int y = get_min(first);
-    printf("y : %i", y);
+
 
     while (tc_temp->next != NULL){
         size++;
@@ -248,7 +248,7 @@ void			ei_draw_text		(ei_surface_t		surface,
 		hw_surface_lock(surface);
 		ei_size_t taille_text;
 		taille_text = hw_surface_get_size(text);
-		uint32_t *origine_text = hw_surface_get_buffer(text_surface);
+		uint32_t *origine_text = (uint32_t*)hw_surface_get_buffer(text_surface);
 		int x_max_text = taille_text.width;
 		for (int i = 0 ; i< taille_text.width; i++){
 		for ( int j = 0 ; j< taille_text.height; j++){

@@ -6,6 +6,7 @@
 #include "ei_draw.h"
 #include "struct.h"
 #include "hw_interface.h"
+#include "button.h"
 
 int main(int argc, char* argv[])
 {
@@ -31,7 +32,7 @@ int main(int argc, char* argv[])
 	
 	hw_surface_unlock(main_window);
 	hw_surface_update_rects(main_window, NULL);
-
+    ei_point_t center = {200, 200};
     ei_point_t start = {50, 50};
     ei_point_t start1   = {100, 100};
     ei_point_t start2   = {20, 200};
@@ -49,16 +50,24 @@ int main(int argc, char* argv[])
     linked_test->next->next->next->next->point = end;
     linked_test->next->next->next->next->next = NULL;
 
+    ei_size_t rect_size1 = {200, 100};
+    ei_rect_t rect = {start1, rect_size1};
+
+    ei_linked_point_t* frame = rounded_frame(rect, 10);
+    float end_p = 180;
+    float start_p = 90;
+    ei_linked_point_t* linked_test2 = arc(center, 50, start_p, end_p);
     ei_color_t test_color = {0, 0, 255};
-    ei_draw_polyline(main_window, linked_test, test_color, NULL);
-    ei_draw_polygon(main_window, linked_test, test_color, NULL);
-    get_tc(linked_test);
+    //ei_draw_polyline(main_window, linked_test, test_color, NULL);
+    ei_draw_polygon(main_window, frame, test_color, NULL);
+
+
 	// Wait for a key press.
 	event.type = ei_ev_none;
 	while (event.type != ei_ev_keydown)
 		hw_event_wait_next(&event);
-        ei_draw_polyline(main_window, linked_test, test_color, NULL);
-        ei_draw_polygon(main_window, linked_test, test_color, NULL);
+        //ei_draw_polyline(main_window, linked_test, test_color, NULL);
+        ei_draw_polygon(main_window, linked_test2, test_color, NULL);
 	// Free hardware resources.
 	hw_quit();
 

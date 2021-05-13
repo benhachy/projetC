@@ -59,6 +59,8 @@ void add_stack(Stack *stack, Segment *segment);
 
 Segment* pop(Stack *stack);
 
+void print_s_Array(Segment array[], int size);
+
 struct tc_cell* get_tc(ei_linked_point_t*	first_point);
 
 void* tca_append(struct tca_cell** tca, int y_max, float x_min, float m);
