@@ -53,21 +53,21 @@ int main(int argc, char* argv[])
     ei_size_t rect_size1 = {200, 100};
     ei_rect_t rect = {start1, rect_size1};
 
-    ei_linked_point_t* frame = rounded_frame(rect, 10);
-    float end_p = 180;
-    float start_p = 90;
-    ei_linked_point_t* linked_test2 = arc(center, 50, start_p, end_p);
+    //ei_linked_point_t* frame = rounded_frame(rect, 10, 3);
+    //float end_p = 180;
+    //float start_p = 90;
+    //ei_linked_point_t* linked_test2 = arc(center, 50, start_p, end_p);
     ei_color_t test_color = {0, 0, 255};
     //ei_draw_polyline(main_window, linked_test, test_color, NULL);
-    ei_draw_polygon(main_window, frame, test_color, NULL);
-
+    //ei_draw_polygon(main_window, frame, test_color, NULL);
+    draw_button(main_window,rect, 10, test_color);
 
 	// Wait for a key press.
 	event.type = ei_ev_none;
 	while (event.type != ei_ev_keydown)
 		hw_event_wait_next(&event);
         //ei_draw_polyline(main_window, linked_test, test_color, NULL);
-        ei_draw_polygon(main_window, linked_test2, test_color, NULL);
+        //ei_draw_polygon(main_window, linked_test2, test_color, NULL);
 	// Free hardware resources.
 	hw_quit();
 
@@ -75,3 +75,5 @@ int main(int argc, char* argv[])
 	// Terminate program with no error code.
 	return 0;
 }
+
+

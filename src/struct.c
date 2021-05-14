@@ -283,49 +283,49 @@ struct tc_cell* get_tc(ei_linked_point_t*	first_point){
     int scan_start = min(s_array[0].start.y, s_array[0].end.y) - 1;
     int i = 0;
     int x_y_min = 0;
-
+    int count_non_hori = 0;
 
     while (scan_start < max_y +1){
         //Si on rencontre un segment à la scan-line
         if (scan_start ==  array[i]) {
+            count_non_hori = 0;
             while(scan_start == array[i] ) {
 
                 //Si la ligne est horizontale on l'ignore et on initialise la prochaine case
-                if ((float) (s_array[i].end.y - s_array[i].start.y) == 0) {
-                    tc_start->tc_carac = NULL;
-                    tc_start->next = (struct tc_cell *) malloc(sizeof(struct tc_cell));
-                    tc_start->next->tc_carac = (struct tc_carac*) malloc(sizeof(struct tc_carac));
-                    tc_start->next->tc_carac->x_min = -1;
-                    tc_start = tc_start->next;
-                    scan_start++;
-                    continue;
+                if ((float) (s_array[i].end.y - s_array[i].start.y) != 0) {
+
+                    //Initialisation des valeurs relatives au nouveau segment rencontré
+                    float m = (float) (s_array[i].end.x - s_array[i].start.x) /
+                              (float) (s_array[i].end.y - s_array[i].start.y);
+                    int y_max = max(s_array[i].start.y, s_array[i].end.y);
+                    if (s_array[i].start.y < s_array[i].end.y) {
+                        x_y_min = s_array[i].start.x;
+                    } else {
+                        x_y_min = s_array[i].end.x;
+                    }
+
+                    //Cas où un plusieurs segments sont rencontré à la même scan-line
+                    tc_carac* tourist = tc_start->tc_carac;
+                    while (tourist->x_min != -1){
+                        tourist = tourist->next;
+                    }
+
+                    tourist->y_max = y_max;
+                    tourist->x_min = x_y_min;
+                    tourist->m = m;
+                    tourist->next = (struct tc_carac *) malloc(sizeof(struct tc_carac));
+                    tourist->next->x_min = -1;
+
+
+                    count_non_hori++;
                 }
-
-                //Initialisation des valeurs relatives au nouveau segment rencontré
-                float m = (float) (s_array[i].end.x - s_array[i].start.x) /
-                          (float) (s_array[i].end.y - s_array[i].start.y);
-                int y_max = max(s_array[i].start.y, s_array[i].end.y);
-                if (s_array[i].start.y < s_array[i].end.y) {
-                    x_y_min = s_array[i].start.x;
-                } else {
-                    x_y_min = s_array[i].end.x;
-                }
-
-                //Cas où un plusieurs segments sont rencontré à la même scan-line
-                tc_carac* tourist = tc_start->tc_carac;
-                while (tourist->x_min != -1){
-                    tourist = tourist->next;
-                }
-
-                tourist->y_max = y_max;
-                tourist->x_min = x_y_min;
-                tourist->m = m;
-                tourist->next = (struct tc_carac *) malloc(sizeof(struct tc_carac));
-                tourist->next->x_min = -1;
-
                 i++;
+
             }
 
+            if (count_non_hori == 0) {
+                tc_start->tc_carac = NULL;
+            }
             //On intialise la prochaine case de TC
             tc_start->next = (struct tc_cell *) malloc(sizeof(struct tc_cell));
             tc_start->next->tc_carac = (struct tc_carac *) malloc(sizeof(struct tc_carac));
