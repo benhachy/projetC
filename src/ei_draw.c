@@ -264,10 +264,130 @@ void			ei_draw_text		(ei_surface_t		surface,
 
 void			ei_fill			(ei_surface_t		surface,
                                     const ei_color_t*	color,
-                                    const ei_rect_t*	clipper);
+                                    const ei_rect_t*	clipper){
+
+
+    uint32_t *origine_surface = (uint32_t *)hw_surface_get_buffer(surface);
+    ei_size_t taille_surface = hw_surface_get_size(surface);
+    int x_max_surface = taille_surface.width;
+    int start_i = 0;
+    int start_j = 0;
+
+    ei_color_t non_const_color = {0,0,0,0};
+    non_const_color.red = color->red;
+    non_const_color.blue = color->blue;
+    non_const_color.green = color->green;
+    non_const_color.alpha = color->alpha;
+
+    if (clipper != NULL) {
+        start_i = clipper->top_left.x;
+        start_j = clipper->top_left.y;
+        taille_surface = clipper->size;
+    }
+
+    uint32_t int_color = ei_map_rgba(surface, non_const_color);
+    for (int i = start_i ; i< taille_surface.width ; i++){
+        for ( int j = start_j ; j< taille_surface.height; j++){
+            *(origine_surface + (uint32_t)(x_max_surface*j) + (uint32_t)i) = int_color;
+
+        }
+    }
+
+
+
+    // rect to linked_rect
+
+
+
+}
 
 int			ei_copy_surface		(ei_surface_t		destination,
                                        const ei_rect_t*	dst_rect,
                                        ei_surface_t		source,
                                        const ei_rect_t*	src_rect,
-                                       ei_bool_t		alpha);
+                                       ei_bool_t		alpha){
+
+
+
+    ei_size_t taille_src = hw_surface_get_size(source);
+    int x_max_src = taille_src.width;
+    ei_size_t taille_dst = hw_surface_get_size(destination);
+    if (taille_src.height != taille_dst.height ||taille_src.width != taille_dst.width ){return 1;}
+    uint32_t *origine_src = (uint32_t *)hw_surface_get_buffer(source);
+    uint32_t *origine_dst = (uint32_t *)hw_surface_get_buffer(destination);
+
+    // Déclaration des variables d'ajustement
+    int start_src_i = 0;
+    int start_src_j = 0;
+    int start_dst_i = 0;
+    int start_dst_j = 0;
+
+    if (dst_rect != NULL && src_rect != NULL){
+        if (dst_rect->size.height != src_rect->size.height || dst_rect->size.width != src_rect->size.width) {
+            return 1;}
+        int y = src_rect->top_left.y;
+        int x = src_rect->top_left.x;
+        origine_src += (uint32_t)(x_max_src*y) + (uint32_t)(x);
+        x_max_src = src_rect->size.width;
+        taille_src.width = src_rect->size.width;
+        taille_src.height = src_rect->size.height;
+        start_src_i = x;
+        start_src_j = y;
+        start_dst_i = dst_rect->top_left.x;
+        start_dst_j = dst_rect->top_left.y;
+    }
+    // Cas alpha  == False
+    if (alpha == EI_FALSE){
+        for (int i = start_src_i ; i< taille_src.width; i++){
+            for ( int j = start_src_j ; j< taille_src.height; j++){
+                uint32_t color_src = *(origine_src + (uint32_t)(x_max_src*j) + (uint32_t)(i)); // couleur de source[i][j]
+                ei_color_pixel(destination, color_src, i+start_dst_i, j+start_dst_j);
+            }
+        }
+    }
+
+    // Cas alpha == True
+    if (alpha == EI_TRUE){
+        for (int i = start_src_i ; i< taille_src.width; i++){
+            for ( int j = start_src_j ; j< taille_src.height; j++){
+                uint32_t color_src = *(origine_src + (uint32_t)(x_max_src*j) + (uint32_t)(i)); // couleur de source[i][j]
+                uint32_t color_dst = *(origine_dst + (uint32_t)(x_max_src*j) + (uint32_t)(i)); // couleur de destination[i][j]
+                // Implémenation effet transparence
+                // Calcul des composantes RGB
+                uint8_t src_R, src_G, src_B, src_A;
+                uint8_t dst_R, dst_G, dst_B, dst_A;
+                int two_to_8 = pow(2,8);
+                int two_to_16 = pow(2,16);
+                int two_to_24 = pow(2,24);
+
+                src_A = (color_src)%(two_to_8);
+                src_B = (color_src/(two_to_8))%(two_to_8);
+                src_G = (color_src/(two_to_16))%(two_to_8);
+                src_R = (color_src/(two_to_24))%(two_to_8);
+
+                dst_A = (color_dst)%(two_to_8);
+                dst_B = (color_dst/(two_to_8))%(two_to_8);
+                dst_G = (color_dst/(two_to_16))%(two_to_8);
+                dst_R = (color_dst/(two_to_24))%(two_to_8);
+
+                dst_B = (src_A*src_B + (255-src_A)*dst_B)/255;
+                dst_G = (src_A*src_G + (255-src_A)*dst_G)/255;
+                dst_R = (src_A*src_R + (255-src_A)*dst_R)/255;
+                dst_A = 255;
+
+                color_src = dst_A + dst_B*(two_to_8) + dst_G*(two_to_16) + dst_R*(two_to_24);
+
+                ei_color_pixel(destination, color_src, i+start_dst_i, j+start_dst_j);
+            }
+        }
+    }
+
+
+
+    ei_linked_rect_t dst_rect_ext;
+    dst_rect_ext.rect = *dst_rect;
+    dst_rect_ext.next = NULL;
+
+
+    return 0;
+}
