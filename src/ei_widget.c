@@ -8,7 +8,6 @@
 #include "ei_utils.h"
 #include "ei_types.h"
 #include "ei_event.h"
-#include "ei_utils_memory.h"
 
 
 ei_widget_t*    ei_widget_create(ei_widgetclass_name_t	class_name,
