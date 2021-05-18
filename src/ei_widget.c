@@ -11,13 +11,6 @@
 #include "ei_utils_memory.h"
 
 
-static uint32_t counter_pick_id = 0;
-static ei_axis_set_t axis = ei_axis_none;
-static ei_bool_t false = EI_FALSE;
-extern ei_surface_t* offscreen;
-extern ei_widgetlist_t* widgetlist;
-
-
 ei_widget_t*    ei_widget_create(ei_widgetclass_name_t	class_name,
                                  ei_widget_t*		parent,
                                  void*			user_data,
