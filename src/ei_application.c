@@ -40,8 +40,7 @@ ei_surface_t root_surface = NULL;
 void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
      
     hw_init();
-
-    //On enregistre les classes de widgets (Frame seulement pour le moment)
+    //On enregistre la classe de widgets frame
     ei_widgetclass_t *frame = (ei_widgetclass_t*) malloc(sizeof(ei_widgetclass_t));
     char frame_name[20] = "frame";
     for (int i = 0; i < 20; i++){
@@ -57,6 +56,23 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
 
     ei_widgetclass_register(frame);
      
+
+    //On enregistre la classe de widgets button
+    ei_widgetclass_t *button = (ei_widgetclass_t*) malloc(sizeof(ei_widgetclass_t));
+    char button_name[20] = "button";
+    for (int i = 0; i < 20; i++){
+        button->name[i] = button_name[i];
+    }
+    button->allocfunc = &allowfunc_button;
+    button->drawfunc = &drawfunc_button;
+    button->releasefunc = &releasefunc_button;
+    button->geomnotifyfunc = &geomnotifyfunc_button;
+    button->handlefunc = &ei_button_handlefunc_t;
+    button->setdefaultsfunc = &setdefaultsfunc_button;
+    button->next = NULL;
+
+    ei_widgetclass_register(button);
+
 
     ei_surface_t main_window = hw_create_window(main_window_size, fullscreen);
     root_surface = main_window;
@@ -85,7 +101,7 @@ void ei_app_run(void){
     event.type = ei_ev_none;
     while (event.type != ei_ev_keydown)
         hw_event_wait_next(&event);
-    
+    //getchar();
 }
 
 

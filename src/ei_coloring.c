@@ -8,16 +8,6 @@
 #include "hw_interface.h"
 #include "ei_types.h"
 
-ei_bool_t in_rect(int x, int y, ei_rect_t rect){
-ei_bool_t in ;
-return in;
-
-if ((x >= rect.top_left.x && y >= rect.top_left.y) && (x <= rect.top_left.x+rect.size.width && y <= rect.top_left.y+rect.size.height)){
-in = EI_TRUE;
-return in;
-}
-}
-
 void        ei_color_pixel(ei_surface_t    surface,
                            uint32_t 	   color,
                            int             x,
@@ -34,8 +24,7 @@ void        ei_color_pixel(ei_surface_t    surface,
 void        ei_color_1_pos_x_pos_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end,
-                                   ei_rect_t*		 clipper){
+                                   ei_linked_point_t*  end){
 
     int delta_x = end->point.x - start->point.x;
     int delta_y = end->point.y - start->point.y;
@@ -44,14 +33,12 @@ void        ei_color_1_pos_x_pos_y(ei_surface_t        surface,
     int error = 0;
     int end_x = end->point.x;
     while(curr_x != end_x) {
-        if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == 1 ){
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_x++;
         error = error + delta_y;
         if (2 * error > delta_x) {
             curr_y++;
             error = error - delta_x;
-            }
 
         }
     }
@@ -61,8 +48,7 @@ void        ei_color_1_pos_x_pos_y(ei_surface_t        surface,
 void        ei_color_1_pos_x_neg_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end,
-                                   ei_rect_t* clipper){
+                                   ei_linked_point_t*  end){
 
     int delta_x = end->point.x - start->point.x;
     int delta_y = end->point.y - start->point.y;
@@ -71,14 +57,12 @@ void        ei_color_1_pos_x_neg_y(ei_surface_t        surface,
     int error = 0;
     int end_x = end->point.x;
     while(curr_x != end_x) {
-        if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == 1 ){
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_x++;
         error = error - delta_y;
         if (2 * error > delta_x) {
             curr_y--;
             error = error - delta_x;
-            }
 
         }
     }
@@ -88,8 +72,7 @@ void        ei_color_1_pos_x_neg_y(ei_surface_t        surface,
 void        ei_color_1_neg_x_pos_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end,
-                                   ei_rect_t* clipper){
+                                   ei_linked_point_t*  end){
 
     int delta_x = end->point.x - start->point.x;
     int delta_y = end->point.y - start->point.y;
@@ -98,14 +81,12 @@ void        ei_color_1_neg_x_pos_y(ei_surface_t        surface,
     int error = 0;
     int end_x = end->point.x;
     while(curr_x != end_x) {
-        if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == 1 ){
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_x--;
         error = error + delta_y;
         if (2 * error > -delta_x) {
             curr_y++;
             error = error + delta_x;
-            }
 
         }
     }
@@ -115,8 +96,7 @@ void        ei_color_1_neg_x_pos_y(ei_surface_t        surface,
 void        ei_color_1_neg_x_neg_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end,
-                                   ei_rect_t* clipper){
+                                   ei_linked_point_t*  end){
 
     int delta_x = end->point.x - start->point.x;
     int delta_y = end->point.y - start->point.y;
@@ -124,7 +104,6 @@ void        ei_color_1_neg_x_neg_y(ei_surface_t        surface,
     int curr_y = start->point.y;
     int error = 0;
     int end_x = end->point.x;
-    if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == 1 ){
     while(curr_x != end_x) {
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_x--;
@@ -132,7 +111,6 @@ void        ei_color_1_neg_x_neg_y(ei_surface_t        surface,
         if (2 * error > -delta_x) {
             curr_y--;
             error = error + delta_x;
-            }
 
         }
     }
@@ -143,8 +121,7 @@ void        ei_color_1_neg_x_neg_y(ei_surface_t        surface,
 void        ei_color_2_pos_x_pos_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end,
-                                   ei_rect_t* clipper){
+                                   ei_linked_point_t*  end){
 
     int delta_x = end->point.x - start->point.x;
     int delta_y = end->point.y - start->point.y;
@@ -153,14 +130,12 @@ void        ei_color_2_pos_x_pos_y(ei_surface_t        surface,
     int error = 0;
     int end_y = end->point.y;
     while(curr_y != end_y) {
-        if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == 1 ){
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_y++;
         error = error + delta_x;
         if (2 * error > delta_y) {
             curr_x++;
             error = error - delta_y;
-            }
 
         }
     }
@@ -170,8 +145,7 @@ void        ei_color_2_pos_x_pos_y(ei_surface_t        surface,
 void        ei_color_2_pos_x_neg_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end,
-                                   ei_rect_t* clipper){
+                                   ei_linked_point_t*  end){
 
     int delta_x = end->point.x - start->point.x;
     int delta_y = end->point.y - start->point.y;
@@ -180,14 +154,12 @@ void        ei_color_2_pos_x_neg_y(ei_surface_t        surface,
     int error = 0;
     int end_y = end->point.y;
     while(curr_y != end_y) {
-        if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == 1 ){
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_y--;
         error = error + delta_x;
         if (2 * error > -delta_y) {
             curr_x++;
             error = error + delta_y;
-            }
 
         }
     }
@@ -197,8 +169,7 @@ void        ei_color_2_pos_x_neg_y(ei_surface_t        surface,
 void        ei_color_2_neg_x_pos_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end,
-                                   ei_rect_t* clipper){
+                                   ei_linked_point_t*  end){
 
     int delta_x = end->point.x - start->point.x;
     int delta_y = end->point.y - start->point.y;
@@ -207,14 +178,12 @@ void        ei_color_2_neg_x_pos_y(ei_surface_t        surface,
     int error = 0;
     int end_y = end->point.y;
     while(curr_y != end_y) {
-        if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == 1 ){
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_y++;
         error = error - delta_x;
         if (2 * error > delta_y) {
             curr_x--;
             error = error - delta_y;
-            }
 
         }
     }
@@ -224,8 +193,7 @@ void        ei_color_2_neg_x_pos_y(ei_surface_t        surface,
 void        ei_color_2_neg_x_neg_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end,
-                                   ei_rect_t* clipper){
+                                   ei_linked_point_t*  end){
 
     int delta_x = end->point.x - start->point.x;
     int delta_y = end->point.y - start->point.y;
@@ -234,14 +202,12 @@ void        ei_color_2_neg_x_neg_y(ei_surface_t        surface,
     int error = 0;
     int end_y = end->point.y;
     while(curr_y != end_y) {
-        if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == 1 ){
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_y--;
         error = error - delta_x;
         if (2 * error > -delta_y) {
             curr_x--;
             error = error + delta_y;
-            }
 
         }
     }
@@ -249,17 +215,14 @@ void        ei_color_2_neg_x_neg_y(ei_surface_t        surface,
 void        ei_color_3_pos_x_pos_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end,
-                                   ei_rect_t* clipper){
+                                   ei_linked_point_t*  end){
     int curr_x = start->point.x;
     int curr_y = start->point.y;
     while(curr_x != end->point.x)
     {
-        if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == 1 ){
     ei_color_pixel(surface, color, curr_x, curr_y);
     curr_x++;
     curr_y++;
-    }
     }
    
     
@@ -268,17 +231,14 @@ void        ei_color_3_pos_x_pos_y(ei_surface_t        surface,
 void        ei_color_3_pos_x_neg_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end,
-                                   ei_rect_t* clipper){
+                                   ei_linked_point_t*  end){
     int curr_x = start->point.x;
     int curr_y = start->point.y;
     
     while(curr_x != end->point.x){
-        if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == 1 ){
     ei_color_pixel(surface, color, curr_x, curr_y);
     curr_x++;
     curr_y--;
-    }
     }
     
     
@@ -287,17 +247,14 @@ void        ei_color_3_pos_x_neg_y(ei_surface_t        surface,
 void        ei_color_3_neg_x_pos_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end,
-                                   ei_rect_t* clipper){
+                                   ei_linked_point_t*  end){
     int curr_x = start->point.x;
     int curr_y = start->point.y;
     
     while(curr_x != end->point.x){
-        if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == 1 ){
     ei_color_pixel(surface, color, curr_x, curr_y);
     curr_x--;
     curr_y++;
-    }
     }
     
     
@@ -306,16 +263,13 @@ void        ei_color_3_neg_x_pos_y(ei_surface_t        surface,
 void        ei_color_3_neg_x_neg_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end,
-                                   ei_rect_t* clipper){
+                                   ei_linked_point_t*  end){
     int curr_x = start->point.x;
     int curr_y = start->point.y;
     
     while(curr_x != end->point.x){
-        if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == 1 ){
-       ei_color_pixel(surface, color, curr_x, curr_y);
-        curr_x--;
-        curr_y--;
-    }
+    ei_color_pixel(surface, color, curr_x, curr_y);
+    curr_x--;
+    curr_y--;
     }
 }

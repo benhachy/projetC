@@ -272,8 +272,8 @@ struct tc_cell* get_tc(ei_linked_point_t*	first_point){
         temp = temp->next;
     }
     quickSort(array,s_array,0,n-2);
-    print_s_Array(s_array, n);
-    printArray(array, n);
+    //print_s_Array(s_array, n);
+    //printArray(array, n);
 
     int max_y = max(s_array[n-2].start.y, s_array[n-2].end.y);
 

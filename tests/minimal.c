@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 	hw_init();
 
 	// Create the main window.
-	main_window = hw_create_window(main_window_size, EI_FALSE);
+	main_window = hw_create_window(main_window_size, EI_TRUE);
 
 	// Lock the surface for drawing, fill in white, unlock, update screen.
 	hw_surface_lock(main_window);

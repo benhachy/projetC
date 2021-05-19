@@ -4,7 +4,7 @@
 #include "ei_draw_widget.h"
 #include "ei_widget.h"
 #include "ei_widgetclass.h"
-
+#include "button.h"
 
 
 void dessin(ei_widget_t* widget, ei_surface_t surface, ei_surface_t offscreen){
@@ -21,6 +21,9 @@ void dessin(ei_widget_t* widget, ei_surface_t surface, ei_surface_t offscreen){
 
 
 }
+
+
+//                                                    ||ALLOW FUNCTIONS||
 
 
 
@@ -48,8 +51,43 @@ struct ei_widget_t* allowfunc_frame(void) {
     frame_wid->screen_location.top_left.y = 0;
     frame_wid->content_rect = NULL;
 
+    return frame_wid;
+
 
 };
+
+struct ei_widget_t* allowfunc_button(void) {
+    struct ei_widget_t* button_wid = (struct ei_widget_t*)malloc(sizeof(struct ei_widget_t));
+
+    button_wid->wclass = NULL;
+    button_wid->pick_id = 0;
+    button_wid->pick_color = NULL;
+    button_wid->user_data = NULL;
+    button_wid->destructor = NULL;
+
+    //Setting family parameters to NULL
+    button_wid->parent = NULL;
+    button_wid->children_head = NULL;
+    button_wid->children_tail = NULL;
+    button_wid->next_sibling = NULL;
+
+    //Setting geometry parameters to NULL
+    button_wid->placer_params = NULL;
+    button_wid->requested_size.height = 0;
+    button_wid->requested_size.width = 0;
+    button_wid->screen_location.top_left.x = 0;
+    button_wid->screen_location.top_left.y = 0;
+    button_wid->content_rect = NULL;
+
+    return button_wid;
+};
+
+
+
+//                                                   ||RELEASE FUNCTIONS||
+
+
+
 
 void releasefunc_frame(struct ei_widget_t* frame_wid){
 
@@ -72,10 +110,36 @@ void releasefunc_frame(struct ei_widget_t* frame_wid){
 
 }
 
+void releasefunc_button(struct ei_widget_t* button_wid){
+
+    free(button_wid->wclass);
+    free(button_wid->pick_color);
+    free(button_wid->user_data);
+    free(button_wid->destructor);
+
+    //Setting family parameters to NULL
+    free(button_wid->parent);
+    free(button_wid->children_head);
+    free(button_wid->children_tail);
+    free(button_wid->next_sibling);
+
+    //Setting geometry parameters to NULL
+    free(button_wid->placer_params);
+    free(button_wid->content_rect);
+
+    free(button_wid);
+
+}
+
+
+//                                                   ||DRAWING FUNCTIONS||
+
+
 void	drawfunc_frame		(struct ei_widget_t*	widget,
                                ei_surface_t		surface,
                                ei_surface_t		pick_surface,
                                ei_rect_t*		clipper){
+
     ei_point_t top_right = {0,0};
     ei_point_t bottom_left = {0,0};
     ei_point_t bottom_right = {0,0};
@@ -115,6 +179,25 @@ void	drawfunc_frame		(struct ei_widget_t*	widget,
 
 }
 
+void	drawfunc_button		(struct ei_widget_t*	widget,
+                               ei_surface_t		surface,
+                               ei_surface_t		pick_surface,
+                               ei_rect_t*		clipper){
+
+    ei_point_t top_left = widget->screen_location.top_left;
+    ei_size_t size = widget->screen_location.size;
+    ei_rect_t rect = {top_left, size};
+
+    draw_button(surface, rect, 10, *(widget->pick_color));
+
+}
+
+
+
+//                                                   ||SET DEFAULT FUNCTIONS||
+
+
+
 void	setdefaultsfunc_frame	(struct ei_widget_t*	widget){
 
     ei_point_t top_left = {0,0};
@@ -125,12 +208,42 @@ void	setdefaultsfunc_frame	(struct ei_widget_t*	widget){
 
 }
 
+
+void	setdefaultsfunc_button	(struct ei_widget_t*	widget){
+
+    ei_point_t top_left = {0,0};
+    //By default every frame is a square of size 10pixels
+    ei_size_t size = {10,10};
+    ei_rect_t screen_location = {top_left, size};
+    widget->content_rect = &(widget->screen_location);
+
+}
+
+
+//                                                   ||GEOMNIDIEBI FUNCTIONS||
+
+
+
 void	geomnotifyfunc_frame	(struct ei_widget_t*	widget,
                                  ei_rect_t		rect){
 
 }
 
+
+void	geomnotifyfunc_button	(struct ei_widget_t*	widget,
+                                 ei_rect_t		rect){
+
+}
+
+//                                                   ||CAN YOU EVEN HANDLE ME? FUNCTIONS||
+
+
 ei_bool_t ei_frame_handlefunc_t (struct ei_widget_t*	widget,
+                                 struct ei_event_t*	event){
+    return 0;
+}
+
+ei_bool_t ei_button_handlefunc_t (struct ei_widget_t*	widget,
                                  struct ei_event_t*	event){
     return 0;
 }
