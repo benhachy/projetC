@@ -115,6 +115,7 @@ typedef struct ei_widgetclass_t {
 
 
 
+
 /**
  * \brief	Returns the string of the name of a class.
  *
