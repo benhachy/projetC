@@ -240,12 +240,12 @@ void			ei_draw_text		(ei_surface_t		surface,
                                      
                                      {
 		ei_surface_t text_surface;
-		text = hw_text_create_surface(		text,
+		text_surface = hw_text_create_surface(		text,
 					 			font,
 					 			color);
 
 		ei_size_t taille_text;
-		taille_text = hw_surface_get_size(text);
+		taille_text = hw_surface_get_size(text_surface);
 		uint32_t *origine_text = (uint32_t*)hw_surface_get_buffer(text_surface);
 		int x_max_text = taille_text.width;
 		for (int i = 0 ; i< taille_text.width; i++){
