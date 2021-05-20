@@ -5,7 +5,24 @@
 #include "ei_widget.h"
 #include "ei_widgetclass.h"
 #include "button.h"
+#include "ei_draw.h"
 
+ei_frame_cell frame_cell_head = {
+        NULL,
+        NULL,
+        NULL,
+        ei_relief_none,
+        NULL,
+};
+
+
+ei_button_cell button_cell_head = {
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        ei_relief_raised,
+};
 
 void dessin(ei_widget_t* widget, ei_surface_t surface, ei_surface_t offscreen){
 
@@ -140,6 +157,8 @@ void	drawfunc_frame		(struct ei_widget_t*	widget,
                                ei_surface_t		pick_surface,
                                ei_rect_t*		clipper){
 
+    ei_frame_cell* frame = get_frame_cell(widget);
+
     ei_point_t top_right = {0,0};
     ei_point_t bottom_left = {0,0};
     ei_point_t bottom_right = {0,0};
@@ -167,7 +186,8 @@ void	drawfunc_frame		(struct ei_widget_t*	widget,
     frame_pt->next->next->next->next->point = top_left;
     frame_pt->next->next->next->next->next = NULL;
 
-    ei_draw_polygon(surface,frame_pt,*(widget->pick_color),clipper);
+    ei_draw_polygon(surface,frame_pt,*(frame->color),clipper);
+    ei_draw_polygon(pick_surface, frame_pt, *(widget->pick_color), clipper);
 
     //Free the points used for drawing
     while(frame_pt!= NULL){
@@ -184,11 +204,22 @@ void	drawfunc_button		(struct ei_widget_t*	widget,
                                ei_surface_t		pick_surface,
                                ei_rect_t*		clipper){
 
+    ei_button_cell* button = get_button_cell(widget);
     ei_point_t top_left = widget->screen_location.top_left;
     ei_size_t size = widget->screen_location.size;
     ei_rect_t rect = {top_left, size};
+    int border_width;
+    if (*(button->border_width) < 10){
+        border_width = 10;
+    } else {
+        border_width =  *(button->border_width);
+    }
 
-    draw_button(surface, rect, 10, *(widget->pick_color));
+    if (button->relief == ei_relief_raised) {
+        draw_button(surface, pick_surface, clipper, rect, *(button->corner_radius), *(button->color),*(widget->pick_color), border_width,0);
+    } else {
+        draw_button(surface, pick_surface, clipper, rect, *(button->corner_radius), *(button->color),*(widget->pick_color), border_width, 1);
+    }
 
 }
 
@@ -220,7 +251,7 @@ void	setdefaultsfunc_button	(struct ei_widget_t*	widget){
 }
 
 
-//                                                   ||GEOMNIDIEBI FUNCTIONS||
+//                                                   ||GEOMNOMNOMNOM FUNCTIONS||
 
 
 
@@ -248,3 +279,101 @@ ei_bool_t ei_button_handlefunc_t (struct ei_widget_t*	widget,
     return 0;
 }
 
+
+
+struct ei_frame_cell* get_frame_cell(struct ei_widget_t* widget){
+    ei_frame_cell *temp = &frame_cell_head;
+
+    //Si la liste chainée est vide
+    if (temp->widget == NULL){
+        temp->widget = widget;
+        temp->next = NULL;
+        return temp;
+    } else {
+        if (temp->widget->pick_id == widget->pick_id){
+            return temp;
+        }
+        while (temp->next != NULL ) {
+            //Si la prochaine cellule est la bonne on la retourne
+            if (temp->next->widget->pick_id == widget->pick_id){
+                return temp->next;
+            //Sinon on cherche encore
+            } else {
+                temp = temp->next;
+            }
+        }
+        //Si on a pas trouvé de cellule on en crée une nouvelle
+        if (temp->next == NULL) {
+            temp->next = (ei_frame_cell*)malloc(sizeof(ei_frame_cell));
+            temp->next->widget = widget;
+            temp->next->next = NULL;
+            return temp->next;
+        }
+    }
+}
+
+
+
+struct ei_button_cell* get_button_cell(struct ei_widget_t* widget){
+    ei_button_cell *temp = &button_cell_head;
+
+    //Si la liste chainée est vide
+    if (temp->widget == NULL){
+        temp->widget = widget;
+        temp->next = NULL;
+    } else {
+        if (temp->widget->pick_id == widget->pick_id){
+            return temp;
+        }
+        while (temp->next != NULL ) {
+            //Si la prochaine cellule est la bonne on la retourne
+            if (temp->next->widget->pick_id == widget->pick_id){
+                return temp->next;
+                //Sinon on cherche encore
+            } else {
+                temp = temp->next;
+            }
+        }
+        //Si on a pas trouvé de cellule on en crée une nouvelle
+        if (temp->next == NULL) {
+            temp->next = (ei_button_cell*)malloc(sizeof(ei_button_cell));
+            temp->next->widget = widget;
+            temp->next->next = NULL;
+            return temp->next;
+        }
+    }
+}
+
+int is_widget_frame(uint32_t id){
+
+    ei_frame_cell *temp = &frame_cell_head;
+    while (temp != NULL){
+        if (temp->widget->pick_id == id){
+            return 1;
+        }
+        temp = temp->next;
+    }
+    return 0;
+}
+
+int is_widget_button(uint32_t id, ei_surface_t surface){
+    ei_button_cell *temp = &button_cell_head;
+    while (temp != NULL){
+        if (ei_map_rgba(surface, *(temp->widget->pick_color) ) == id){
+            return 1;
+        }
+        temp = temp->next;
+    }
+    return 0;
+}
+
+struct ei_button_cell* button_from_id(uint32_t id, ei_surface_t surface){
+    ei_button_cell *temp = &button_cell_head;
+    while (temp != NULL){
+        if (ei_map_rgba(surface, *(temp->widget->pick_color) ) == id){
+            return temp;
+        }
+        temp = temp->next;
+    }
+    return NULL;
+}

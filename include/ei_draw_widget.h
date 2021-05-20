@@ -16,6 +16,31 @@
  *
  */
 
+typedef struct ei_button_cell {
+
+    ei_widget_t* widget;
+    ei_color_t* color;
+    int*			border_width;
+    int*			corner_radius;
+    ei_relief_t		relief;
+
+    struct ei_button_cell* next;
+
+}ei_button_cell;
+
+
+typedef struct ei_frame_cell {
+
+    ei_widget_t* widget;
+    ei_color_t* color;
+    int*			border_width;
+    ei_relief_t		relief;
+
+    struct ei_frame_cell* next;
+
+}ei_frame_cell;
+
+
 void dessin(ei_widget_t* widget, ei_surface_t surface, ei_surface_t offscreen);
 
 ei_bool_t ei_frame_handlefunc_t (struct ei_widget_t*	widget,
@@ -60,5 +85,16 @@ void releasefunc_button(struct ei_widget_t* button_wid);
 struct ei_widget_t* allowfunc_frame(void) ;
 
 struct ei_widget_t* allowfunc_button(void);
+
+
+struct ei_frame_cell* get_frame_cell(struct ei_widget_t* widget);
+
+struct ei_button_cell* get_button_cell(struct ei_widget_t* widget);
+
+int is_widget_button(uint32_t id, ei_surface_t surface);
+
+int is_widget_frame(uint32_t id);
+
+struct ei_button_cell* button_from_id(uint32_t id, ei_surface_t surface);
 
 #endif

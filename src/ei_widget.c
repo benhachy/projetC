@@ -20,7 +20,7 @@ extern ei_widgetlist_t* widgetlist;
 */
 
 
-
+int red_id = 0;
 
 ei_widget_t*    ei_widget_create(ei_widgetclass_name_t	class_name,
                                  ei_widget_t*		parent,
@@ -35,6 +35,17 @@ ei_widget_t*    ei_widget_create(ei_widgetclass_name_t	class_name,
     parent->children_head = new_widget;
     new_widget->user_data = user_data;
     new_widget->destructor = destructor;
+
+    ei_color_t* id_color = (ei_color_t*)malloc(sizeof(ei_color_t));
+    red_id++;
+    id_color->red = red_id;
+    id_color->blue = 0;
+    id_color->green = 0;
+    id_color->alpha = 0;
+    uint32_t int_color = red_id;
+    new_widget->pick_color = id_color;
+    new_widget->pick_id = int_color;
+
     return new_widget;
 }
 
@@ -61,6 +72,8 @@ void			ei_frame_configure		(ei_widget_t*		widget,
                                            ei_rect_t**		img_rect,
                                            ei_anchor_t*		img_anchor) {
 
+    ei_frame_cell* frame = get_frame_cell(widget);
+
     //Modification de la couleur du widget frame
     ei_color_t *non_const_color = (ei_color_t *) malloc(sizeof(ei_color_t));
     //Si aucune couleur donnée , on utilise la couleur par défaut
@@ -75,13 +88,20 @@ void			ei_frame_configure		(ei_widget_t*		widget,
         non_const_color->green = color->green;
         non_const_color->alpha = color->alpha;
     }
-    widget->pick_color = non_const_color;
+    frame->color = non_const_color;
 
-
+    //Configuration du requested size
     if (requested_size != NULL) {
         widget->requested_size = *(requested_size);
     }
 
+    //Configuration de la bordure et du relief
+    frame->border_width = border_width;
+    if (relief != NULL){
+        frame->relief = *relief;
+    } else {
+        frame->relief = ei_relief_none;
+    }
 
 }
 
@@ -101,6 +121,8 @@ void			ei_button_configure		(ei_widget_t*		widget,
                                             ei_callback_t*		callback,
                                             void**			user_param){
 
+    ei_button_cell* button = get_button_cell(widget);
+
     //Modification de la couleur du widget frame
     ei_color_t *non_const_color = (ei_color_t *) malloc(sizeof(ei_color_t));
     //Si aucune couleur donnée , on utilise la couleur par défaut
@@ -115,11 +137,20 @@ void			ei_button_configure		(ei_widget_t*		widget,
         non_const_color->green = color->green;
         non_const_color->alpha = color->alpha;
     }
-    widget->pick_color = non_const_color;
+    button->color = non_const_color;
 
 
     if (requested_size != NULL) {
         widget->requested_size = *(requested_size);
     }
+
+    //Configuration de la bordure et du relief
+    button->border_width = border_width;
+    if (relief != NULL){
+        button->relief = *relief;
+    } else {
+        button->relief = ei_relief_raised;
+    }
+    button->corner_radius = corner_radius;
 
 }

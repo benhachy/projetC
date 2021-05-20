@@ -36,6 +36,8 @@ struct ei_widget_t root_widget =  {
 
 ei_surface_t root_surface = NULL;
 
+ei_surface_t offscreen = NULL;
+
 
 void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
      
@@ -75,12 +77,17 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
 
 
     ei_surface_t main_window = hw_create_window(main_window_size, fullscreen);
+    offscreen = hw_surface_create(main_window,main_window_size, 0);
     root_surface = main_window;
     root_widget.wclass = ei_widgetclass_from_name("frame");
     root_widget.screen_location.size = main_window_size;
     root_widget.content_rect = &(root_widget.screen_location);
-
-
+    root_widget.pick_id = 0;
+    root_widget.pick_color = (ei_color_t *) malloc(sizeof(ei_color_t));//TO FREEEEEEE
+    root_widget.pick_color->red = 0;
+    root_widget.pick_color->blue = 0;
+    root_widget.pick_color->green = 0;
+    root_widget.pick_color->alpha = 0;
 
 }
 
@@ -91,16 +98,50 @@ void ei_app_free(void){
 
 
 void ei_app_run(void){
+    int x = 0;
+    int y = 0;
+    int x_max = hw_surface_get_size(offscreen).width;
+    uint32_t id_color = -1;
+    ei_button_cell* button = NULL;
+    ei_frame_cell* frame = NULL;
     ei_event_t		event;
+    uint32_t* origin = (uint32_t*)hw_surface_get_buffer(offscreen);
     //Dessin récursif des widgets
     hw_surface_lock(root_surface);
-    dessin(&root_widget, root_surface, root_surface);
+    dessin(&root_widget, root_surface, offscreen);
     hw_surface_unlock(root_surface);
     hw_surface_update_rects(root_surface, NULL);
 
     event.type = ei_ev_none;
-    while (event.type != ei_ev_keydown)
+    while (event.type != ei_ev_keydown) {
+        if (event.type == ei_ev_mouse_buttondown){
+            printf("CLICK!\n");
+            x = event.param.mouse.where.x;
+            y = event.param.mouse.where.y;
+            id_color = *(origin + (uint32_t)(x_max*y) + (uint32_t)x);
+            printf("%u : id :", id_color);
+            if(is_widget_button(id_color, offscreen) == 1){
+                printf("You're on button!");
+                button = button_from_id(id_color, offscreen);
+                button->relief = ei_relief_sunken;
+                hw_surface_lock(root_surface);
+                dessin(&root_widget, root_surface, offscreen);
+                hw_surface_unlock(root_surface);
+                hw_surface_update_rects(root_surface, NULL);
+                while(event.type == ei_ev_mouse_buttondown){
+                    hw_event_wait_next(&event);
+                }
+                button->relief = ei_relief_raised;
+                continue;
+            }
+
+        }
+        hw_surface_lock(root_surface);
+        dessin(&root_widget, root_surface, offscreen);
+        hw_surface_unlock(root_surface);
+        hw_surface_update_rects(root_surface, NULL);
         hw_event_wait_next(&event);
+    }
     //getchar();
 }
 

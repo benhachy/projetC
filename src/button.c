@@ -59,7 +59,6 @@ ei_linked_point_t* rounded_frame(ei_rect_t rect, int r, int parametre) {
     if (parametre == 1) {
         int x = rect.top_left.x;
         int y = rect.top_left.y;
-        r = ceil(rect.size.width / 10);
         ei_point_t c1 = {x + r, y + r};
         ei_point_t c2 = {x + r, y - r + rect.size.height};
         ei_point_t c3 = {x - r + rect.size.width, y - r + rect.size.height};
@@ -110,7 +109,6 @@ ei_linked_point_t* rounded_frame(ei_rect_t rect, int r, int parametre) {
     } else if (parametre == 2) {
         int x = rect.top_left.x;
         int y = rect.top_left.y;
-        r = ceil(rect.size.width / 10);
         ei_point_t c1 = {x + r, y + r};
         ei_point_t c2 = {x + r, y - r + rect.size.height};
         ei_point_t c3 = {x + floor(rect.size.height/2), y + floor(rect.size.height/2)};
@@ -118,7 +116,7 @@ ei_linked_point_t* rounded_frame(ei_rect_t rect, int r, int parametre) {
         ei_point_t c5 = {x - r + rect.size.width, y + r};
 
         ei_linked_point_t *arc1 = arc(c1, r, 90, 180);
-        ei_linked_point_t *arc2 = arc(c2, r, 180, 225);
+        ei_linked_point_t *arc2 = arc(c2, r, 180, 230);
         ei_linked_point_t *arc3 = arc(c5, r, 45, 90);
 
         ei_linked_point_t *c_temp = arc1;
@@ -161,7 +159,6 @@ ei_linked_point_t* rounded_frame(ei_rect_t rect, int r, int parametre) {
     } else {
         int x = rect.top_left.x;
         int y = rect.top_left.y;
-        r = ceil(rect.size.width / 10);
         ei_point_t c1 = {x + r, y - r + rect.size.height};
         ei_point_t c2 = {x + floor(rect.size.height/2), y + floor(rect.size.height/2)};
         ei_point_t c3 = {x + rect.size.width - floor(rect.size.height/2), y + floor(rect.size.height/2)};
@@ -169,7 +166,7 @@ ei_linked_point_t* rounded_frame(ei_rect_t rect, int r, int parametre) {
         ei_point_t c5 = {x - r + rect.size.width, y - r + rect.size.height};
 
         ei_linked_point_t *arc1 = arc(c1, r, 225, 270);
-        ei_linked_point_t *arc2 = arc(c4, r, 0, 45);
+        ei_linked_point_t *arc2 = arc(c4, r, 0, 50);
         ei_linked_point_t *arc3 = arc(c5, r, 270, 360);
 
         ei_linked_point_t *c_temp = arc1;
@@ -218,33 +215,44 @@ ei_linked_point_t* rounded_frame(ei_rect_t rect, int r, int parametre) {
 
 }
 
-void  draw_button(ei_surface_t surface, ei_rect_t rect, int r, ei_color_t color) {
+void  draw_button(ei_surface_t surface, ei_surface_t offscreen, ei_rect_t*	clipper,ei_rect_t rect, int r, ei_color_t color, ei_color_t off_color, int border_width, int param) {
 
     ei_color_t lighter_color;
-    lighter_color.blue = floor((255 - color.blue)*1/2);
-    lighter_color.red = floor((255 - color.red)*1/2);
-    lighter_color.green = floor((255 - color.green)*1/2);
+    lighter_color.blue = color.blue + floor((255 - color.blue)*1/3);
+    lighter_color.red = color.blue + floor((255 - color.red)*1/3);
+    lighter_color.green = color.blue + floor((255 - color.green)*1/3);
 
     ei_color_t darker_color;
-    darker_color.blue = floor(color.blue*1/2);
-    darker_color.red = floor(color.red*1/2);
-    darker_color.green = floor(color.green*1/2);
+    darker_color.blue = floor(color.blue*1/3);
+    darker_color.red = floor(color.red*1/3);
+    darker_color.green = floor(color.green*1/3);
 
     ei_linked_point_t* upper_frame = rounded_frame(rect, r, 2);
     ei_linked_point_t* lower_frame = rounded_frame(rect, r, 3);
 
     ei_rect_t small_rect;
-    ei_size_t small_size = {rect.size.width - 20, rect.size.height -20 };
-    ei_point_t small_rect_point = {rect.top_left.x + 10, rect.top_left.y + 10};
+    ei_size_t small_size = {rect.size.width - border_width, rect.size.height - border_width };
+    ei_point_t small_rect_point = {rect.top_left.x + border_width/2, rect.top_left.y + border_width/2};
     small_rect.top_left = small_rect_point;
     small_rect.size = small_size;
 
     ei_linked_point_t* inside_frame = rounded_frame(small_rect, r, 1);
+    ei_linked_point_t* offscreen_frame = rounded_frame(rect, r, 1);
 
-    ei_draw_polygon(surface, upper_frame,lighter_color, NULL);
-    ei_draw_polygon(surface, lower_frame, darker_color, NULL);
-    ei_draw_polygon(surface, inside_frame, color, NULL);
+    //Dessin dans root_window
+    if (param == 0) {
+        ei_draw_polygon(surface, upper_frame, lighter_color, clipper);
+        ei_draw_polygon(surface, lower_frame, darker_color, clipper);
+        ei_draw_polygon(surface, inside_frame, color, clipper);
+    } else {
+        ei_draw_polygon(surface, upper_frame, darker_color, clipper);
+        ei_draw_polygon(surface, lower_frame, lighter_color, clipper);
+        ei_draw_polygon(surface, inside_frame, color, clipper);
+    }
 
+    //Dessin dans l'offscreen
+    ei_draw_polygon(offscreen, offscreen_frame,off_color, clipper);
 
+    //Upper frame, lower frame and inside frame need to be freed
 
 }
