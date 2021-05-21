@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 	hw_init();
 
 	// Create the main window.
-	main_window = hw_create_window(main_window_size, EI_TRUE);
+	main_window = hw_create_window(main_window_size, EI_FALSE);
 
 	// Lock the surface for drawing, fill in white, unlock, update screen.
 	hw_surface_lock(main_window);
@@ -60,7 +60,13 @@ int main(int argc, char* argv[])
     ei_color_t test_color = {0, 0, 255};
     //ei_draw_polyline(main_window, linked_test, test_color, NULL);
     //ei_draw_polygon(main_window, frame, test_color, NULL);
-    draw_button(main_window,rect, 10, test_color);
+    //draw_button(main_window,rect, 10, test_color);
+    ei_font_t font = hw_text_font_create(ei_default_font_filename, ei_style_normal, 60);
+    char *text = "HELLO ";
+    hw_surface_lock(main_window);
+    ei_draw_text(main_window, &start, text, font, ei_font_default_color, NULL);
+    hw_surface_unlock(main_window);
+    hw_surface_update_rects(main_window, NULL);
 
 	// Wait for a key press.
 	event.type = ei_ev_none;

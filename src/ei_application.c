@@ -119,7 +119,6 @@ void ei_app_run(void){
             x = event.param.mouse.where.x;
             y = event.param.mouse.where.y;
             id_color = *(origin + (uint32_t)(x_max*y) + (uint32_t)x);
-            printf("%u : id :", id_color);
             if(is_widget_button(id_color, offscreen) == 1){
                 printf("You're on button!");
                 button = button_from_id(id_color, offscreen);
