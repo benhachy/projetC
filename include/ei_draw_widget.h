@@ -146,4 +146,7 @@ struct ei_frame_cell* frame_from_id(uint32_t id, ei_surface_t surface);
 
 struct ei_text_cell* text_from_id(uint32_t id, ei_surface_t surface);
 
+
+int mouse_on_widget(struct ei_event_t event, ei_rect_t rect);
+
 #endif

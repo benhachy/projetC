@@ -6,6 +6,7 @@
 #include "ei_widgetclass.h"
 #include "button.h"
 #include "ei_draw.h"
+#include "ei_event.h"
 
 ei_frame_cell frame_cell_head = {
         NULL,
@@ -534,4 +535,14 @@ struct ei_text_cell* text_from_id(uint32_t id, ei_surface_t surface){
         temp = temp->next;
     }
     return NULL;
+}
+
+int mouse_on_widget(struct ei_event_t event, ei_rect_t rect){
+    int x = event.param.mouse.where.x;
+    int y = event.param.mouse.where.y;
+    if (x>= rect.top_left.x && x <= rect.top_left.x + rect.size.width){
+        if (y>= rect.top_left.y && y <= rect.top_left.y + rect.size.height){
+            return 1;
+        } else return 0;
+    } else return 0;
 }

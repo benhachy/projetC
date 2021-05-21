@@ -142,7 +142,8 @@ void ei_app_run(void){
                 dessin(&root_widget, root_surface, offscreen);
                 hw_surface_unlock(root_surface);
                 hw_surface_update_rects(root_surface, NULL);
-                while(event.type == ei_ev_mouse_buttondown){
+                hw_event_wait_next(&event);
+                while(event.type == ei_ev_mouse_move && mouse_on_widget(event, button->widget->screen_location) == 1){
                     hw_event_wait_next(&event);
                 }
                 button->relief = ei_relief_raised;
