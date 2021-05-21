@@ -51,12 +51,12 @@ ei_widget_t*    ei_widget_create(ei_widgetclass_name_t	class_name,
 
 void ei_widget_destroy (ei_widget_t* widget)
 {
-    /*
+
         if (widget->destructor != NULL){
                 widget->destructor(widget);
+        } else {
+            widget->wclass->releasefunc(widget);
         }
-        widget->wclass->releasefunc(widget);
-        */
 }
 
 void			ei_frame_configure		(ei_widget_t*		widget,
@@ -75,20 +75,26 @@ void			ei_frame_configure		(ei_widget_t*		widget,
     ei_frame_cell* frame = get_frame_cell(widget);
 
     //Modification de la couleur du widget frame
-    ei_color_t *non_const_color = (ei_color_t *) malloc(sizeof(ei_color_t));
+
     //Si aucune couleur donnée , on utilise la couleur par défaut
-    if (color == NULL) {
-        non_const_color->red = ei_default_background_color.red;
-        non_const_color->blue = ei_default_background_color.blue;
-        non_const_color->green = ei_default_background_color.green;
-        non_const_color->alpha = ei_default_background_color.alpha;
+    if (color == NULL ) {
+        if (frame->color == NULL) {
+            frame->color = (ei_color_t *) malloc(sizeof(ei_color_t));
+            frame->color->red = ei_default_background_color.red;
+            frame->color->blue = ei_default_background_color.blue;
+            frame->color->green = ei_default_background_color.green;
+            frame->color->alpha = ei_default_background_color.alpha;
+        }
     } else {
-        non_const_color->red = color->red;
-        non_const_color->blue = color->blue;
-        non_const_color->green = color->green;
-        non_const_color->alpha = color->alpha;
+        if (frame->color == NULL){
+            frame->color = (ei_color_t *) malloc(sizeof(ei_color_t));
+        }
+        frame->color->red = color->red;
+        frame->color->blue = color->blue;
+        frame->color->green = color->green;
+        frame->color->alpha = color->alpha;
     }
-    frame->color = non_const_color;
+
 
     //Configuration du requested size
     if (requested_size != NULL) {
@@ -152,5 +158,38 @@ void			ei_button_configure		(ei_widget_t*		widget,
         button->relief = ei_relief_raised;
     }
     button->corner_radius = corner_radius;
+
+    //Si présence de texte on configure le widget text enfant:
+    if (text != NULL) {
+        ei_widget_t *text_widget = ei_widget_create("text", widget, NULL, NULL);
+        ei_place(text_widget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        int* text_width = (int*)malloc(sizeof(int));// TO FREEEEEE
+        int* text_height= (int*)malloc(sizeof(int));//TO FREEEEEE
+        if (text_anchor != NULL) {
+            text_widget->placer_params->anchor = text_anchor;
+            text_widget->placer_params->anchor_data = *text_anchor;
+        }
+        ei_text_cell *text_cell = get_text_cell(text_widget);
+
+        text_cell->color = text_color;
+        text_cell->text = text;
+        if (text_font != NULL) {
+            text_cell->text_font = text_font;
+        } else {
+            text_cell->text_font = ei_default_font;
+        }
+        float r = 0.15;
+        float y_rel = 0.4;
+        float* ptr = &r;
+        float* ptr_y = &y_rel;
+        hw_text_compute_size(*text, text_cell->text_font, text_width, text_height);
+        text_widget->placer_params->rx_data = r;
+        text_widget->placer_params->ry_data = y_rel;
+        text_widget->placer_params->rx = ptr;
+        text_widget->placer_params->ry = ptr_y;
+        text_widget->placer_params->w = text_width;
+        text_widget->placer_params->h = text_height;
+        ei_placer_run(text_widget);
+    }
 
 }

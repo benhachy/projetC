@@ -76,6 +76,23 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
     ei_widgetclass_register(button);
 
 
+    //On enregistre la classe de widgets text
+    ei_widgetclass_t *text = (ei_widgetclass_t*) malloc(sizeof(ei_widgetclass_t));
+    char text_name[20] = "text";
+    for (int i = 0; i < 20; i++){
+        text->name[i] = text_name[i];
+    }
+    text->allocfunc = &allowfunc_text;
+    text->drawfunc = &drawfunc_text;
+    text->releasefunc = &releasefunc_text;
+    text->geomnotifyfunc = &geomnotifyfunc_text;
+    text->handlefunc = &ei_text_handlefunc_t;
+    text->setdefaultsfunc = &setdefaultsfunc_text;
+    text->next = NULL;
+
+    ei_widgetclass_register(text);
+
+
     ei_surface_t main_window = hw_create_window(main_window_size, fullscreen);
     offscreen = hw_surface_create(main_window,main_window_size, 0);
     root_surface = main_window;
@@ -83,7 +100,7 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
     root_widget.screen_location.size = main_window_size;
     root_widget.content_rect = &(root_widget.screen_location);
     root_widget.pick_id = 0;
-    root_widget.pick_color = (ei_color_t *) malloc(sizeof(ei_color_t));//TO FREEEEEEE
+    root_widget.pick_color = (ei_color_t *) malloc(sizeof(ei_color_t)); //TO FREEEEEEE
     root_widget.pick_color->red = 0;
     root_widget.pick_color->blue = 0;
     root_widget.pick_color->green = 0;
@@ -115,12 +132,10 @@ void ei_app_run(void){
     event.type = ei_ev_none;
     while (event.type != ei_ev_keydown) {
         if (event.type == ei_ev_mouse_buttondown){
-            printf("CLICK!\n");
             x = event.param.mouse.where.x;
             y = event.param.mouse.where.y;
             id_color = *(origin + (uint32_t)(x_max*y) + (uint32_t)x);
             if(is_widget_button(id_color, offscreen) == 1){
-                printf("You're on button!");
                 button = button_from_id(id_color, offscreen);
                 button->relief = ei_relief_sunken;
                 hw_surface_lock(root_surface);

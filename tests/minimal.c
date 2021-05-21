@@ -57,14 +57,14 @@ int main(int argc, char* argv[])
     //float end_p = 180;
     //float start_p = 90;
     //ei_linked_point_t* linked_test2 = arc(center, 50, start_p, end_p);
-    ei_color_t test_color = {0, 0, 255};
+    ei_color_t test_color = {255, 0, 0};
     //ei_draw_polyline(main_window, linked_test, test_color, NULL);
     //ei_draw_polygon(main_window, frame, test_color, NULL);
     //draw_button(main_window,rect, 10, test_color);
     ei_font_t font = hw_text_font_create(ei_default_font_filename, ei_style_normal, 60);
-    char *text = "HELLO ";
+    char *text = "Dumb Dumb";
     hw_surface_lock(main_window);
-    ei_draw_text(main_window, &start, text, font, ei_font_default_color, NULL);
+    ei_draw_text(main_window, &start, text, font, test_color, NULL);
     hw_surface_unlock(main_window);
     hw_surface_update_rects(main_window, NULL);
 

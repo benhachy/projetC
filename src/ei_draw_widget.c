@@ -24,6 +24,15 @@ ei_button_cell button_cell_head = {
         ei_relief_raised,
 };
 
+ei_text_cell text_cell_head = {
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+};
+
+
 void dessin(ei_widget_t* widget, ei_surface_t surface, ei_surface_t offscreen){
 
      //On commence par appeler la fonction drawfunc pour dessiner le premier widget
@@ -100,6 +109,32 @@ struct ei_widget_t* allowfunc_button(void) {
 };
 
 
+struct ei_widget_t* allowfunc_text(void) {
+    struct ei_widget_t* text_wid = (struct ei_widget_t*)malloc(sizeof(struct ei_widget_t));
+
+    text_wid->wclass = NULL;
+    text_wid->pick_id = 0;
+    text_wid->pick_color = NULL;
+    text_wid->user_data = NULL;
+    text_wid->destructor = NULL;
+
+    //Setting family parameters to NULL
+    text_wid->parent = NULL;
+    text_wid->children_head = NULL;
+    text_wid->children_tail = NULL;
+    text_wid->next_sibling = NULL;
+
+    //Setting geometry parameters to NULL
+    text_wid->placer_params = NULL;
+    text_wid->requested_size.height = 0;
+    text_wid->requested_size.width = 0;
+    text_wid->screen_location.top_left.x = 0;
+    text_wid->screen_location.top_left.y = 0;
+    text_wid->content_rect = NULL;
+
+    return text_wid;
+};
+
 
 //                                                   ||RELEASE FUNCTIONS||
 
@@ -145,6 +180,28 @@ void releasefunc_button(struct ei_widget_t* button_wid){
     free(button_wid->content_rect);
 
     free(button_wid);
+
+}
+
+
+void releasefunc_text(struct ei_widget_t* text_wid){
+
+    free(text_wid->wclass);
+    free(text_wid->pick_color);
+    free(text_wid->user_data);
+    free(text_wid->destructor);
+
+    //Setting family parameters to NULL
+    free(text_wid->parent);
+    free(text_wid->children_head);
+    free(text_wid->children_tail);
+    free(text_wid->next_sibling);
+
+    //Setting geometry parameters to NULL
+    free(text_wid->placer_params);
+    free(text_wid->content_rect);
+
+    free(text_wid);
 
 }
 
@@ -209,12 +266,15 @@ void	drawfunc_button		(struct ei_widget_t*	widget,
     ei_size_t size = widget->screen_location.size;
     ei_rect_t rect = {top_left, size};
     int border_width;
+
+    //We make sure that the border_width is not too small
     if (*(button->border_width) < 10){
         border_width = 10;
     } else {
         border_width =  *(button->border_width);
     }
 
+    //Draws the button given its relief
     if (button->relief == ei_relief_raised) {
         draw_button(surface, pick_surface, clipper, rect, *(button->corner_radius), *(button->color),*(widget->pick_color), border_width,0);
     } else {
@@ -223,6 +283,19 @@ void	drawfunc_button		(struct ei_widget_t*	widget,
 
 }
 
+void	drawfunc_text		(struct ei_widget_t*	widget,
+                              ei_surface_t		surface,
+                              ei_surface_t		pick_surface,
+                              ei_rect_t*		clipper){
+    ei_text_cell* text_cell = text_from_id(widget->pick_id, surface);
+    ei_point_t* where = &(widget->screen_location.top_left);
+    char* text = *(text_cell->text);
+    ei_font_t  font = text_cell->text_font;
+    ei_color_t  color = *(text_cell->color);
+
+    ei_draw_text(surface, where, text, font, color, clipper);
+    //Pas besoin de dessiner dans l'offscreen (le texte n'est pas un vrai widget)
+}
 
 
 //                                                   ||SET DEFAULT FUNCTIONS||
@@ -250,6 +323,15 @@ void	setdefaultsfunc_button	(struct ei_widget_t*	widget){
 
 }
 
+void	setdefaultsfunc_text	(struct ei_widget_t*	widget){
+
+    ei_point_t top_left = {0,0};
+    //By default every frame is a square of size 10pixels
+    ei_size_t size = {10,10};
+    ei_rect_t screen_location = {top_left, size};
+    widget->content_rect = &(widget->screen_location);
+
+}
 
 //                                                   ||GEOMNOMNOMNOM FUNCTIONS||
 
@@ -266,6 +348,11 @@ void	geomnotifyfunc_button	(struct ei_widget_t*	widget,
 
 }
 
+void	geomnotifyfunc_text	(struct ei_widget_t*	widget,
+                                  ei_rect_t		rect){
+
+}
+
 //                                                   ||CAN YOU EVEN HANDLE ME? FUNCTIONS||
 
 
@@ -279,6 +366,10 @@ ei_bool_t ei_button_handlefunc_t (struct ei_widget_t*	widget,
     return 0;
 }
 
+ei_bool_t ei_text_handlefunc_t (struct ei_widget_t*	widget,
+                                  struct ei_event_t*	event){
+    return 0;
+}
 
 
 struct ei_frame_cell* get_frame_cell(struct ei_widget_t* widget){
@@ -344,21 +435,41 @@ struct ei_button_cell* get_button_cell(struct ei_widget_t* widget){
     }
 }
 
-int is_widget_frame(uint32_t id){
 
-    ei_frame_cell *temp = &frame_cell_head;
-    while (temp != NULL){
-        if (temp->widget->pick_id == id){
-            return 1;
+struct ei_text_cell* get_text_cell(struct ei_widget_t* widget){
+    ei_text_cell *temp = &text_cell_head;
+
+    //Si la liste chainée est vide
+    if (temp->widget == NULL){
+        temp->widget = widget;
+        temp->next = NULL;
+    } else {
+        if (temp->widget->pick_id == widget->pick_id){
+            return temp;
         }
-        temp = temp->next;
+        while (temp->next != NULL ) {
+            //Si la prochaine cellule est la bonne on la retourne
+            if (temp->next->widget->pick_id == widget->pick_id){
+                return temp->next;
+                //Sinon on cherche encore
+            } else {
+                temp = temp->next;
+            }
+        }
+        //Si on a pas trouvé de cellule on en crée une nouvelle
+        if (temp->next == NULL) {
+            temp->next = (ei_text_cell*)malloc(sizeof(ei_text_cell));
+            temp->next->widget = widget;
+            temp->next->next = NULL;
+            return temp->next;
+        }
     }
-    return 0;
 }
 
-int is_widget_button(uint32_t id, ei_surface_t surface){
-    ei_button_cell *temp = &button_cell_head;
-    while (temp != NULL){
+
+int is_widget_frame(uint32_t id, ei_surface_t surface){
+    ei_frame_cell *temp = &frame_cell_head;
+    while (temp->widget != NULL){
         if (ei_map_rgba(surface, *(temp->widget->pick_color) ) == id){
             return 1;
         }
@@ -366,11 +477,58 @@ int is_widget_button(uint32_t id, ei_surface_t surface){
     }
     return 0;
 }
+
+
+int is_widget_button(uint32_t id, ei_surface_t surface){
+    ei_button_cell *temp = &button_cell_head;
+    while (temp->widget != NULL){
+        if (ei_map_rgba(surface, *(temp->widget->pick_color) ) == id){
+            return 1;
+        }
+        temp = temp->next;
+    }
+    return 0;
+}
+
+int is_widget_text(uint32_t id, ei_surface_t surface){
+    ei_text_cell *temp = &text_cell_head;
+    while (temp->widget != NULL){
+        if (ei_map_rgba(surface, *(temp->widget->pick_color) ) == id){
+            return 1;
+        }
+        temp = temp->next;
+    }
+    return 0;
+}
+
 
 struct ei_button_cell* button_from_id(uint32_t id, ei_surface_t surface){
     ei_button_cell *temp = &button_cell_head;
     while (temp != NULL){
         if (ei_map_rgba(surface, *(temp->widget->pick_color) ) == id){
+            return temp;
+        }
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+struct ei_frame_cell* frame_from_id(uint32_t id, ei_surface_t surface){
+    ei_frame_cell *temp = &frame_cell_head;
+    while (temp != NULL){
+        if (ei_map_rgba(surface, *(temp->widget->pick_color) ) == id){
+            return temp;
+        }
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+struct ei_text_cell* text_from_id(uint32_t id, ei_surface_t surface){
+    ei_text_cell *temp = &text_cell_head;
+    while (temp != NULL){
+        uint32_t id_a_voir = ei_map_rgba(surface, *(temp->widget->pick_color));
+        if (temp->widget->pick_id == id){
             return temp;
         }
         temp = temp->next;

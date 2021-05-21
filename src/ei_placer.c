@@ -27,7 +27,7 @@ void ei_placer_run(struct ei_widget_t* widget){
             if (widget->children_head != NULL) {
                 if (widget->children_head->placer_params->w != NULL) {
                     //La largeur du premier enfant + 5px
-                    actual_width = widget->children_head->placer_params->w_data;
+                    actual_width = widget->children_head->placer_params->w_data + 5;
                 }
             }
         }
@@ -43,7 +43,7 @@ void ei_placer_run(struct ei_widget_t* widget){
         } else {
             if (widget->children_head != NULL) {
                 if (widget->children_head->placer_params->h != NULL) {
-                    actual_height = widget->children_head->placer_params->h_data;
+                    actual_height = widget->children_head->placer_params->h_data + 5;
                 }
             }
         }
@@ -221,4 +221,11 @@ void		ei_place	(struct ei_widget_t*	widget,
 
     //On run le placeur une première fois pour positionner le widget selon son parent
     ei_placer_run(widget);
+
+    //On repositionne tous les enfants du widgets si on a fait un nouvel appel à ei_place
+    ei_widget_t* child = widget->children_head;
+    while(child != NULL){
+        ei_placer_run(child);
+        child = child->next_sibling;
+    }
     }

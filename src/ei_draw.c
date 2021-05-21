@@ -244,10 +244,8 @@ int			ei_copy_surface		(ei_surface_t		destination,
 
 
     ei_size_t taille_src = hw_surface_get_size(source);
-    int x_max_src = taille_src.width;
+    int x_max_src = 0;
     int x_max_dst = 0;
-    ei_size_t taille_dst = hw_surface_get_size(destination);
-    //if (taille_src.height != taille_dst.height ||taille_src.width != taille_dst.width ){return 1;}
     uint32_t *origine_src = (uint32_t *)hw_surface_get_buffer(source);
     uint32_t *origine_dst = (uint32_t *)hw_surface_get_buffer(destination);
     ei_rect_t* dst_rect_copy = (ei_rect_t*)malloc(sizeof(ei_rect_t));
@@ -276,17 +274,17 @@ int			ei_copy_surface		(ei_surface_t		destination,
     int start_src_j = 0;
     int start_dst_i = 0;
     int start_dst_j = 0;
-
+    int width = 0;
+    int height = 0;
 
     if (dst_rect_copy->size.height != src_rect_copy->size.height || dst_rect_copy->size.width != src_rect_copy->size.width) {
         return 1;}
     int y = src_rect_copy->top_left.y;
     int x = src_rect_copy->top_left.x;
-    //origine_src += (uint32_t)(x_max_src*y) + (uint32_t)(x);
-    //x_max_src = src_rect_copy->size.width;
-    x_max_dst = hw_surface_get_rect(destination).size.width;//PAS BIEN PAS GENERAL
-    taille_src.width = src_rect_copy->size.width;
-    taille_src.height = src_rect_copy->size.height;
+    x_max_dst = hw_surface_get_rect(destination).size.width;
+    x_max_src = hw_surface_get_rect(source).size.width;
+    width = dst_rect_copy->size.width;
+    height = src_rect_copy->size.height;
     start_src_i = x;
     start_src_j = y;
     start_dst_i = dst_rect_copy->top_left.x;
@@ -294,8 +292,8 @@ int			ei_copy_surface		(ei_surface_t		destination,
 
     // Cas alpha  == False
     if (alpha == EI_FALSE){
-        for (int i = 0; i< taille_src.width; i++){
-            for ( int j = 0 ; j< taille_src.height; j++){
+        for (int i = 0; i< width; i++){
+            for ( int j = 0 ; j< height; j++){
                 uint32_t color_src = *(origine_src + (uint32_t)(x_max_src*(start_src_j + j)) + (uint32_t)(start_src_i + i));// couleur de source[i][j]
                 ei_color_pixel(destination, color_src, i+start_dst_i, j+start_dst_j);
             }
@@ -312,13 +310,12 @@ int			ei_copy_surface		(ei_surface_t		destination,
     int two_to_8 = pow(2,8);
     // Cas alpha == True
     if (alpha == EI_TRUE){
-        for (int i = 0 ; i< taille_src.width; i++){
-            for ( int j = 0 ; j< taille_src.height; j++){
+        for (int i = 0 ; i< width; i++){
+            for ( int j = 0 ; j< height; j++){
                 uint32_t color_src = *(origine_src + (uint32_t)(x_max_src*(start_src_j + j)) + (uint32_t)(start_src_i + i)); // couleur de source[i][j]
                 uint32_t color_dst = *(origine_dst + (uint32_t)(x_max_dst*(start_dst_j + j)) + (uint32_t)(start_dst_i + i)); // couleur de destination[i][j]
                 // Implémenation effet transparence
                 // Calcul des composantes RGB
-                //We put the color indices in their respective variables
 
 
                 src_A = ((int)(color_src/pow(2,8*ia)))%(two_to_8);
@@ -326,7 +323,6 @@ int			ei_copy_surface		(ei_surface_t		destination,
                 src_G = ((int)(color_src/pow(2,8*ig)))%(two_to_8);
                 src_R = ((int)(color_src/pow(2,8*ir)))%(two_to_8);
 
-                dst_A =  ((int)(color_dst/pow(2,8*iad)))%(two_to_8);
                 dst_B =  255;
                 dst_G =  ((int)(color_dst/pow(2,8*igd)))%(two_to_8);
                 dst_R =  ((int)(color_dst/pow(2,8*ird)))%(two_to_8);

@@ -41,6 +41,17 @@ typedef struct ei_frame_cell {
 }ei_frame_cell;
 
 
+typedef struct ei_text_cell {
+
+    ei_widget_t* widget;
+    char**			text;
+    ei_color_t* color;
+    ei_font_t*		text_font;
+
+    struct ei_text_cell* next;
+
+}ei_text_cell;
+
 void dessin(ei_widget_t* widget, ei_surface_t surface, ei_surface_t offscreen);
 
 ei_bool_t ei_frame_handlefunc_t (struct ei_widget_t*	widget,
@@ -49,6 +60,10 @@ ei_bool_t ei_frame_handlefunc_t (struct ei_widget_t*	widget,
 ei_bool_t ei_button_handlefunc_t (struct ei_widget_t*	widget,
                                   struct ei_event_t*	event);
 
+ei_bool_t ei_text_handlefunc_t (struct ei_widget_t*	widget,
+                                  struct ei_event_t*	event);
+
+
 
 void	geomnotifyfunc_frame	(struct ei_widget_t*	widget,
                                  ei_rect_t		rect);
@@ -56,10 +71,19 @@ void	geomnotifyfunc_frame	(struct ei_widget_t*	widget,
 void	geomnotifyfunc_button	(struct ei_widget_t*	widget,
                                   ei_rect_t		rect);
 
+void	geomnotifyfunc_text	(struct ei_widget_t*	widget,
+                                  ei_rect_t		rect);
+
+
+
 
 void	setdefaultsfunc_frame	(struct ei_widget_t*	widget);
 
 void	setdefaultsfunc_button	(struct ei_widget_t*	widget);
+
+void	setdefaultsfunc_text	(struct ei_widget_t*	widget);
+
+
 
 
 
@@ -73,11 +97,20 @@ void	drawfunc_button		(struct ei_widget_t*	widget,
                                 ei_surface_t		pick_surface,
                                 ei_rect_t*		clipper);
 
+void	drawfunc_text		(struct ei_widget_t*	widget,
+                                ei_surface_t		surface,
+                                ei_surface_t		pick_surface,
+                                ei_rect_t*		clipper);
+
+
+
 
 
 void releasefunc_frame(struct ei_widget_t* frame_wid);
 
 void releasefunc_button(struct ei_widget_t* button_wid);
+
+void releasefunc_text(struct ei_widget_t* button_wid);
 
 
 
@@ -86,15 +119,31 @@ struct ei_widget_t* allowfunc_frame(void) ;
 
 struct ei_widget_t* allowfunc_button(void);
 
+struct ei_widget_t* allowfunc_text(void);
+
+
+
 
 struct ei_frame_cell* get_frame_cell(struct ei_widget_t* widget);
 
 struct ei_button_cell* get_button_cell(struct ei_widget_t* widget);
 
+struct ei_text_cell* get_text_cell(struct ei_widget_t* widget);
+
+
+
 int is_widget_button(uint32_t id, ei_surface_t surface);
 
-int is_widget_frame(uint32_t id);
+int is_widget_frame(uint32_t id, ei_surface_t surface);
+
+int is_widget_text(uint32_t id, ei_surface_t surface);
+
+
 
 struct ei_button_cell* button_from_id(uint32_t id, ei_surface_t surface);
+
+struct ei_frame_cell* frame_from_id(uint32_t id, ei_surface_t surface);
+
+struct ei_text_cell* text_from_id(uint32_t id, ei_surface_t surface);
 
 #endif
