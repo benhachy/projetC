@@ -52,6 +52,21 @@ typedef struct ei_text_cell {
 
 }ei_text_cell;
 
+
+typedef struct ei_toplevel_cell {
+
+    ei_widget_t* widget;
+    char**			title;
+    ei_color_t* color;
+    ei_bool_t*		closable;
+    ei_axis_set_t*		resizable;
+    ei_size_t*		min_size;
+
+    struct ei_toplevel_cell* next;
+
+}ei_toplevel_cell;
+
+
 void dessin(ei_widget_t* widget, ei_surface_t surface, ei_surface_t offscreen);
 
 ei_bool_t ei_frame_handlefunc_t (struct ei_widget_t*	widget,
@@ -62,6 +77,9 @@ ei_bool_t ei_button_handlefunc_t (struct ei_widget_t*	widget,
 
 ei_bool_t ei_text_handlefunc_t (struct ei_widget_t*	widget,
                                   struct ei_event_t*	event);
+
+ei_bool_t ei_toplevel_handlefunc_t (struct ei_widget_t*	widget,
+                                struct ei_event_t*	event);
 
 
 
@@ -74,6 +92,10 @@ void	geomnotifyfunc_button	(struct ei_widget_t*	widget,
 void	geomnotifyfunc_text	(struct ei_widget_t*	widget,
                                   ei_rect_t		rect);
 
+void	geomnotifyfunc_toplevel	(struct ei_widget_t*	widget,
+                                ei_rect_t		rect);
+
+
 
 
 
@@ -82,6 +104,8 @@ void	setdefaultsfunc_frame	(struct ei_widget_t*	widget);
 void	setdefaultsfunc_button	(struct ei_widget_t*	widget);
 
 void	setdefaultsfunc_text	(struct ei_widget_t*	widget);
+
+void	setdefaultsfunc_toplevel	(struct ei_widget_t*	widget);
 
 
 
@@ -102,6 +126,12 @@ void	drawfunc_text		(struct ei_widget_t*	widget,
                                 ei_surface_t		pick_surface,
                                 ei_rect_t*		clipper);
 
+void	drawfunc_toplevel		(struct ei_widget_t*	widget,
+                              ei_surface_t		surface,
+                              ei_surface_t		pick_surface,
+                              ei_rect_t*		clipper);
+
+
 
 
 
@@ -112,6 +142,8 @@ void releasefunc_button(struct ei_widget_t* button_wid);
 
 void releasefunc_text(struct ei_widget_t* button_wid);
 
+void releasefunc_toplevel(struct ei_widget_t* button_wid);
+
 
 
 
@@ -120,6 +152,8 @@ struct ei_widget_t* allowfunc_frame(void) ;
 struct ei_widget_t* allowfunc_button(void);
 
 struct ei_widget_t* allowfunc_text(void);
+
+struct ei_widget_t* allowfunc_toplevel(void);
 
 
 
@@ -130,6 +164,9 @@ struct ei_button_cell* get_button_cell(struct ei_widget_t* widget);
 
 struct ei_text_cell* get_text_cell(struct ei_widget_t* widget);
 
+struct ei_toplevel_cell* get_toplevel_cell(struct ei_widget_t* widget);
+
+
 
 
 int is_widget_button(uint32_t id, ei_surface_t surface);
@@ -137,6 +174,9 @@ int is_widget_button(uint32_t id, ei_surface_t surface);
 int is_widget_frame(uint32_t id, ei_surface_t surface);
 
 int is_widget_text(uint32_t id, ei_surface_t surface);
+
+int is_widget_toplevel(uint32_t id, ei_surface_t surface);
+
 
 
 
@@ -146,7 +186,14 @@ struct ei_frame_cell* frame_from_id(uint32_t id, ei_surface_t surface);
 
 struct ei_text_cell* text_from_id(uint32_t id, ei_surface_t surface);
 
+struct ei_toplevel_cell* toplevel_from_id(uint32_t id, ei_surface_t surface);
+
+
 
 int mouse_on_widget(struct ei_event_t event, ei_rect_t rect);
+
+void recursion_destroy(ei_widget_t* widget);
+
+int is_widget_close(ei_button_cell* button_cell);
 
 #endif

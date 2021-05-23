@@ -22,6 +22,9 @@ extern ei_widgetlist_t* widgetlist;
 
 int red_id = 0;
 
+int corner_default = 10;
+int* corner_default_ptr = &corner_default;
+
 ei_widget_t*    ei_widget_create(ei_widgetclass_name_t	class_name,
                                  ei_widget_t*		parent,
                                  void*			user_data,
@@ -32,7 +35,20 @@ ei_widget_t*    ei_widget_create(ei_widgetclass_name_t	class_name,
     w_class->setdefaultsfunc(new_widget);
     new_widget->wclass = w_class;
     new_widget->parent = parent;
-    parent->children_head = new_widget;
+
+
+    //Computing the chain of the parent's children
+    ei_widget_t* temp_child = parent->children_head;
+    if (temp_child == NULL){
+        parent->children_head = new_widget;
+    } else {
+        while (temp_child->next_sibling !=NULL){
+            temp_child = temp_child->next_sibling;
+        }
+        temp_child->next_sibling = new_widget;
+    }
+
+
     new_widget->user_data = user_data;
     new_widget->destructor = destructor;
 
@@ -52,11 +68,27 @@ ei_widget_t*    ei_widget_create(ei_widgetclass_name_t	class_name,
 void ei_widget_destroy (ei_widget_t* widget)
 {
 
-        if (widget->destructor != NULL){
-                widget->destructor(widget);
+    recursion_destroy(widget);
+    if (widget->parent->children_head == widget) {
+        if (widget->next_sibling == NULL) {
+            widget->parent->children_head = NULL;
         } else {
-            widget->wclass->releasefunc(widget);
+            widget->parent->children_head = widget->next_sibling;
         }
+    } else {
+        ei_widget_t* temp_child = widget->parent->children_head;
+        while(temp_child->next_sibling->pick_id != widget->pick_id){
+            temp_child = temp_child->next_sibling;
+        }
+        temp_child->next_sibling = temp_child->next_sibling->next_sibling;
+    }
+
+    if (widget->destructor != NULL){
+        widget->destructor(widget);
+    } else {
+        widget->wclass->releasefunc(widget);
+    }
+
 }
 
 void			ei_frame_configure		(ei_widget_t*		widget,
@@ -157,7 +189,11 @@ void			ei_button_configure		(ei_widget_t*		widget,
     } else {
         button->relief = ei_relief_raised;
     }
-    button->corner_radius = corner_radius;
+    if (corner_radius != NULL) {
+        button->corner_radius = corner_radius;
+    } else {
+        button->corner_radius = corner_default_ptr;
+    }
 
     //Si présence de texte on configure le widget text enfant:
     if (text != NULL) {
@@ -178,8 +214,8 @@ void			ei_button_configure		(ei_widget_t*		widget,
         } else {
             text_cell->text_font = ei_default_font;
         }
-        float r = 0.15;
-        float y_rel = 0.4;
+        float r = 0.35;
+        float y_rel = 0.25;
         float* ptr = &r;
         float* ptr_y = &y_rel;
         hw_text_compute_size(*text, text_cell->text_font, text_width, text_height);
@@ -193,3 +229,89 @@ void			ei_button_configure		(ei_widget_t*		widget,
     }
 
 }
+
+void			ei_toplevel_configure		(ei_widget_t*		widget,
+                                              ei_size_t*		requested_size,
+                                              ei_color_t*		color,
+                                              int*			border_width,
+                                              char**			title,
+                                              ei_bool_t*		closable,
+                                              ei_axis_set_t*		resizable,
+                                              ei_size_t**		min_size){
+
+    ei_toplevel_cell* toplevel = get_toplevel_cell(widget);
+
+    //We make sure that the toplevel isn't too small
+    if (min_size != NULL){
+        if (*min_size != NULL) {
+            ei_size_t *act_min_size = *min_size;
+            if (act_min_size->height < 100) {
+                act_min_size->height = 100;
+            }
+            if (act_min_size->width < 100) {
+                act_min_size->width = 100;
+            }
+            toplevel->min_size = act_min_size;
+        }
+    } else {
+        ei_size_t* ptr_to_size = (ei_size_t*)malloc(sizeof(ei_size_t));
+        ptr_to_size->width = 100;
+        ptr_to_size->height = 100;
+        toplevel->min_size = ptr_to_size;
+    }
+
+    //Configuring the resizable parametre
+    if (resizable != NULL){
+        toplevel->resizable = resizable;
+    } else {
+        ei_axis_set_t axis = ei_axis_none;
+        toplevel->resizable = &axis;
+    }
+
+    //Configuring the closable parametre
+    if (closable != NULL){
+        toplevel->closable = closable;
+    } else {
+        ei_bool_t closeness = EI_FALSE;
+        toplevel->closable = &closeness;
+    }
+
+    //If the requested size is given :
+    if (requested_size != NULL){
+        widget->requested_size = *requested_size;
+    }
+
+    //Computation of the background frame color
+    if (color != NULL){
+        toplevel->color = color;
+    } else {
+        toplevel->color = (ei_color_t*) malloc(sizeof(ei_color_t));
+        toplevel->color->alpha = 255;
+        toplevel->color->red = 255;
+        toplevel->color->green = 255;
+        toplevel->color->blue = 255;
+    }
+
+    if (closable != NULL) {
+        ei_widget_t *button_widget = ei_widget_create("button", widget, NULL, NULL);
+        int width = 10;
+        int height = 10;
+        int x = 20;
+        int y_rel = 13;
+        int* ptr = &x;
+        int* ptr_y = &y_rel;
+        int* ptr_width = &width;
+        int* ptr_height = &height;
+        ei_place(button_widget, NULL, ptr, ptr_y, ptr_width, ptr_height, NULL, NULL, NULL, NULL);
+
+
+        ei_button_cell *button_cell = get_button_cell(button_widget);
+        ei_color_t red_color = {255, 0, 0};
+
+        button_cell->color = &red_color;
+        ei_placer_run(button_widget);
+    }
+
+}
+
+

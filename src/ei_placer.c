@@ -10,40 +10,58 @@ void ei_placer_run(struct ei_widget_t* widget){
     ei_rect_t  new_parent_location = widget->parent->screen_location;
     ei_point_t parent_top_left = widget->parent->screen_location.top_left;
 
-    int actual_width = 10;
-    int actual_height = 10;
+    int actual_width = 0;
+    int actual_height = 0;
+
+    if (strcmp(widget->wclass->name,"button") == 0){
+        actual_width = 100;
+        actual_height = 40;
+    } else {
+        actual_width = 10;
+        actual_height = 10;
+    }
+
     int actual_x = parent_top_left.x;
     int actual_y = parent_top_left.y;
     ei_anchor_t actual_anchor = ei_anc_northwest;
 
     if (widget->placer_params->w != NULL){
         actual_width = widget->placer_params->w_data;
-    } else {
-        //Si le programmeur a demandé une largeur spécifique....
-        if (widget->requested_size.width != 0) {
-            actual_width = widget->requested_size.width;
-        } else {
-            //Sinon on utilise une largeur par défaut : Soit...
-            if (widget->children_head != NULL) {
-                if (widget->children_head->placer_params->w != NULL) {
-                    //La largeur du premier enfant + 5px
-                    actual_width = widget->children_head->placer_params->w_data + 5;
-                }
-            }
-        }
+    } else if (widget->placer_params->rw != NULL){
+        actual_width = widget->parent->screen_location.size.width*(widget->placer_params->rw_data);
+    } else
+        {
+         //Si le programmeur a demandé une largeur spécifique....
+         if (widget->requested_size.width != 0) {
+             actual_width = widget->requested_size.width;
+         } else {
+             //Sinon on utilise une largeur par défaut : Soit...
+             if (widget->children_head != NULL) {
+                 if (widget->children_head->placer_params->w != NULL) {
+                        //La largeur du premier enfant + 5px
+                        if (strcmp(widget->wclass->name,"button") != 0) {
+                          actual_width = widget->children_head->placer_params->w_data + 5;
+                      }
+                     }
+               }
+           }
     }
 
     //On fait de même pour la hauteur du widget :
 
     if (widget->placer_params->h != NULL){
         actual_height = widget->placer_params->h_data;
+    }else if (widget->placer_params->rh != NULL){
+        actual_width = widget->parent->screen_location.size.height*(widget->placer_params->rh_data);
     } else {
         if (widget->requested_size.height != 0) {
             actual_height = widget->requested_size.height;
         } else {
             if (widget->children_head != NULL) {
                 if (widget->children_head->placer_params->h != NULL) {
-                    actual_height = widget->children_head->placer_params->h_data + 5;
+                    if (strcmp(widget->wclass->name,"button") != 0) {
+                        actual_height = widget->children_head->placer_params->h_data + 5;
+                    }
                 }
             }
         }

@@ -55,6 +55,51 @@ ei_linked_point_t* arc(ei_point_t center, int rayon, float start_angle, float en
     return res1;
 }
 
+ei_linked_point_t* circle(ei_point_t center, int rayon, float start_angle, float end_angle){
+    float teta = M_PI*start_angle/180;
+    float end;
+    float step;
+    if (start_angle > end_angle) {
+        end = M_PI*end_angle/180 + 2*M_PI;
+        step = (start_angle-end_angle)/50;
+        step = M_PI*step/180;
+    } else {
+        end = M_PI*end_angle/180;
+        step = (end_angle-start_angle)/50;
+        step = M_PI*step/180;
+    }
+    int x = 0;
+    int y = 0;
+    int x_temp;
+    int y_temp;
+    ei_point_t start = {center.x + rayon, center.y};
+    ei_linked_point_t* res1 = (ei_linked_point_t* )malloc(sizeof(ei_linked_point_t));
+    ei_linked_point_t* res = res1;
+    //res->point = center;
+    //res->next = (ei_linked_point_t* )malloc(sizeof(ei_linked_point_t));
+    //res = res->next;
+    while (teta <= end ){
+        x_temp = floor(center.x + rayon* cos(teta) + 0.5);
+        y_temp = floor(center.y - rayon*sin(teta)  + 0.5);
+        if ( y_temp == y) {
+            teta = teta + step;
+        } else {
+            x = x_temp;
+            y = y_temp;
+            ei_point_t new = {x, y};
+            res->point = new;
+            res->next = (ei_linked_point_t *) malloc(sizeof(ei_linked_point_t));
+            res = res->next;
+            teta = teta + step;
+        }
+
+    }
+    res->point = start;
+    res->next = NULL;
+
+    return res1;
+}
+
 ei_linked_point_t* rounded_frame(ei_rect_t rect, int r, int parametre) {
     if (parametre == 1) {
         int x = rect.top_left.x;
@@ -217,6 +262,18 @@ ei_linked_point_t* rounded_frame(ei_rect_t rect, int r, int parametre) {
 
 void  draw_button(ei_surface_t surface, ei_surface_t offscreen, ei_rect_t*	clipper,ei_rect_t rect, int r, ei_color_t color, ei_color_t off_color, int border_width, int param) {
 
+    //If the button is very small, it is then a toplevel exit button
+    if (rect.size.width <= 10 || rect.size.height <= 10){
+        color.red = 255;
+        color.blue = 0;
+        color.green = 0;
+        if (param == 0) {
+            param = 2;
+        } else {
+            param = 3;
+        }
+    }
+
     ei_color_t lighter_color;
     lighter_color.blue = color.blue + floor((255 - color.blue)*1/3);
     lighter_color.red = color.blue + floor((255 - color.red)*1/3);
@@ -237,17 +294,37 @@ void  draw_button(ei_surface_t surface, ei_surface_t offscreen, ei_rect_t*	clipp
     small_rect.size = small_size;
 
     ei_linked_point_t* inside_frame = rounded_frame(small_rect, r, 1);
-    ei_linked_point_t* offscreen_frame = rounded_frame(rect, r, 1);
+    ei_linked_point_t* offscreen_frame;
 
     //Dessin dans root_window
     if (param == 0) {
         ei_draw_polygon(surface, upper_frame, lighter_color, clipper);
         ei_draw_polygon(surface, lower_frame, darker_color, clipper);
         ei_draw_polygon(surface, inside_frame, color, clipper);
-    } else {
+        offscreen_frame= rounded_frame(rect, r, 1);
+    } else if(param == 1) {
         ei_draw_polygon(surface, upper_frame, darker_color, clipper);
         ei_draw_polygon(surface, lower_frame, lighter_color, clipper);
         ei_draw_polygon(surface, inside_frame, color, clipper);
+        offscreen_frame = rounded_frame(rect, r, 1);
+    } else if (param == 2) {
+        ei_point_t center = {rect.top_left.x, rect.top_left.y};
+        ei_linked_point_t* cercle = circle(center, 8, 0, 359);
+        ei_linked_point_t* half_circle1 = arc(center, 11, 45, 235);
+        ei_linked_point_t* half_circle2 = arc(center, 11, 225, 55);
+        ei_draw_polygon(surface, half_circle2, darker_color, clipper);
+        ei_draw_polygon(surface, half_circle1, lighter_color, clipper);
+        ei_draw_polygon(surface, cercle, color, clipper);
+        offscreen_frame = circle(center, 11, 0, 359);
+    } else {
+        ei_point_t center = {rect.top_left.x, rect.top_left.y};
+        ei_linked_point_t* cercle = circle(center, 8, 0, 359);
+        ei_linked_point_t* half_circle1 = arc(center, 11, 45, 235);
+        ei_linked_point_t* half_circle2 = arc(center, 11, 225, 55);
+        ei_draw_polygon(surface, half_circle2, lighter_color, clipper);
+        ei_draw_polygon(surface, half_circle1, darker_color, clipper);
+        ei_draw_polygon(surface, cercle, color, clipper);
+        offscreen_frame = circle(center, 11, 0, 359);
     }
 
     //Dessin dans l'offscreen

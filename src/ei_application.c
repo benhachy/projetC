@@ -93,6 +93,23 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
     ei_widgetclass_register(text);
 
 
+    //On enregistre la classe de widgets toplevel
+    ei_widgetclass_t *toplevel = (ei_widgetclass_t*) malloc(sizeof(ei_widgetclass_t));
+    char toplevel_name[20] = "toplevel";
+    for (int i = 0; i < 20; i++){
+        toplevel->name[i] = toplevel_name[i];
+    }
+    toplevel->allocfunc = &allowfunc_toplevel;
+    toplevel->drawfunc = &drawfunc_toplevel;
+    toplevel->releasefunc = &releasefunc_toplevel;
+    toplevel->geomnotifyfunc = &geomnotifyfunc_toplevel;
+    toplevel->handlefunc = &ei_toplevel_handlefunc_t;
+    toplevel->setdefaultsfunc = &setdefaultsfunc_toplevel;
+    toplevel->next = NULL;
+
+    ei_widgetclass_register(toplevel);
+
+
     ei_surface_t main_window = hw_create_window(main_window_size, fullscreen);
     offscreen = hw_surface_create(main_window,main_window_size, 0);
     root_surface = main_window;
@@ -137,17 +154,37 @@ void ei_app_run(void){
             id_color = *(origin + (uint32_t)(x_max*y) + (uint32_t)x);
             if(is_widget_button(id_color, offscreen) == 1){
                 button = button_from_id(id_color, offscreen);
-                button->relief = ei_relief_sunken;
-                hw_surface_lock(root_surface);
-                dessin(&root_widget, root_surface, offscreen);
-                hw_surface_unlock(root_surface);
-                hw_surface_update_rects(root_surface, NULL);
-                hw_event_wait_next(&event);
-                while(event.type == ei_ev_mouse_move && mouse_on_widget(event, button->widget->screen_location) == 1){
+                if (is_widget_close(button) == 1){
+                    button->relief = ei_relief_sunken;
+
+
+                    hw_surface_lock(root_surface);
+                    dessin(&root_widget, root_surface, offscreen);
+                    hw_surface_unlock(root_surface);
+                    hw_surface_update_rects(root_surface, NULL);
+
+                    ei_widget_destroy(button->widget->parent);
+
+                    hw_surface_lock(root_surface);
+                    dessin(&root_widget, root_surface, offscreen);
+                    hw_surface_unlock(root_surface);
+                    hw_surface_update_rects(root_surface, NULL);
                     hw_event_wait_next(&event);
+                    continue;
+                } else {
+                    button->relief = ei_relief_sunken;
+                    hw_surface_lock(root_surface);
+                    dessin(&root_widget, root_surface, offscreen);
+                    hw_surface_unlock(root_surface);
+                    hw_surface_update_rects(root_surface, NULL);
+                    hw_event_wait_next(&event);
+                    while (event.type == ei_ev_mouse_move &&
+                           mouse_on_widget(event, button->widget->screen_location) == 1) {
+                        hw_event_wait_next(&event);
+                    }
+                    button->relief = ei_relief_raised;
+                    continue;
                 }
-                button->relief = ei_relief_raised;
-                continue;
             }
 
         }

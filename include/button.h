@@ -13,6 +13,8 @@
 
 ei_linked_point_t* arc(ei_point_t center, int rayon, float start_angle, float end_angle);
 
+ei_linked_point_t* circle(ei_point_t center, int rayon, float start_angle, float end_angle);
+
 ei_linked_point_t* rounded_frame(ei_rect_t rect, int r, int parameter);
 
 void  draw_button(  ei_surface_t surface,
