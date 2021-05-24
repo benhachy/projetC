@@ -18,7 +18,7 @@
 
 typedef struct ei_button_cell {
 
-    ei_widget_t* widget;
+    ei_widget_t widget;
     ei_color_t* color;
     int*			border_width;
     int*			corner_radius;
@@ -31,7 +31,7 @@ typedef struct ei_button_cell {
 
 typedef struct ei_frame_cell {
 
-    ei_widget_t* widget;
+    ei_widget_t widget;
     ei_color_t* color;
     int*			border_width;
     ei_relief_t		relief;
@@ -43,7 +43,7 @@ typedef struct ei_frame_cell {
 
 typedef struct ei_text_cell {
 
-    ei_widget_t* widget;
+    ei_widget_t widget;
     char**			text;
     ei_color_t* color;
     ei_font_t*		text_font;
@@ -55,7 +55,7 @@ typedef struct ei_text_cell {
 
 typedef struct ei_toplevel_cell {
 
-    ei_widget_t* widget;
+    ei_widget_t widget;
     char**			title;
     ei_color_t* color;
     ei_bool_t*		closable;
@@ -195,5 +195,9 @@ int mouse_on_widget(struct ei_event_t event, ei_rect_t rect);
 void recursion_destroy(ei_widget_t* widget);
 
 int is_widget_close(ei_button_cell* button_cell);
+
+void update_window(ei_surface_t root_surface, ei_surface_t offscreen, struct ei_widget_t root_widget);
+
+struct ei_button_cell get_button_cell_head(void);
 
 #endif

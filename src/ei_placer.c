@@ -4,8 +4,17 @@
 
 #include "ei_types.h"
 #include "ei_widget.h"
+#include "ei_draw_widget.h"
 
 void ei_placer_run(struct ei_widget_t* widget){
+
+    ei_button_cell head = get_button_cell_head();
+    ei_button_cell* button_cell;
+
+    if(strcmp(widget->wclass->name,"button")==0){
+        button_cell = get_button_cell(widget);
+    }
+
     ei_rect_t *new_rect = (ei_rect_t*)malloc(sizeof(ei_rect_t));
     ei_rect_t  new_parent_location = widget->parent->screen_location;
     ei_point_t parent_top_left = widget->parent->screen_location.top_left;
@@ -170,6 +179,12 @@ void ei_placer_run(struct ei_widget_t* widget){
 
         widget->content_rect = new_rect;
         widget->screen_location = *new_rect;
+        printf("piou");
+    }
+
+    if(strcmp(widget->wclass->name,"button")==0){
+        button_cell->widget = *widget;
+        printf("piou");
     }
 }
 

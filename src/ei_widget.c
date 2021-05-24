@@ -227,7 +227,7 @@ void			ei_button_configure		(ei_widget_t*		widget,
         text_widget->placer_params->h = text_height;
         ei_placer_run(text_widget);
     }
-
+    printf("pidou");
 }
 
 void			ei_toplevel_configure		(ei_widget_t*		widget,
@@ -294,10 +294,10 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
 
     if (closable != NULL) {
         ei_widget_t *button_widget = ei_widget_create("button", widget, NULL, NULL);
-        int width = 10;
-        int height = 10;
-        int x = 20;
-        int y_rel = 13;
+        int width = 16;
+        int height = 16;
+        int x = 12;
+        int y_rel = 5;
         int* ptr = &x;
         int* ptr_y = &y_rel;
         int* ptr_width = &width;
@@ -309,6 +309,7 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
         ei_color_t red_color = {255, 0, 0};
 
         button_cell->color = &red_color;
+        button_cell->relief = ei_relief_raised;
         ei_placer_run(button_widget);
     }
 

@@ -136,65 +136,62 @@ void ei_app_run(void){
     int y = 0;
     int x_max = hw_surface_get_size(offscreen).width;
     uint32_t id_color = -1;
-    ei_button_cell* button = NULL;
-    ei_frame_cell* frame = NULL;
+    ei_widget_t* button = NULL;
+    ei_widget_t*  frame = NULL;
+    ei_widget_t* toplevel = NULL;
+    ei_widget_t* active_widget = NULL;
+    ei_bool_t got_handled = EI_FALSE;
     ei_event_t		event;
     uint32_t* origin = (uint32_t*)hw_surface_get_buffer(offscreen);
     //Dessin récursif des widgets
-    hw_surface_lock(root_surface);
-    dessin(&root_widget, root_surface, offscreen);
-    hw_surface_unlock(root_surface);
-    hw_surface_update_rects(root_surface, NULL);
-
+    update_window(root_surface, offscreen, root_widget);
     event.type = ei_ev_none;
-    while (event.type != ei_ev_keydown) {
-        if (event.type == ei_ev_mouse_buttondown){
-            x = event.param.mouse.where.x;
-            y = event.param.mouse.where.y;
-            id_color = *(origin + (uint32_t)(x_max*y) + (uint32_t)x);
-            if(is_widget_button(id_color, offscreen) == 1){
-                button = button_from_id(id_color, offscreen);
-                if (is_widget_close(button) == 1){
-                    button->relief = ei_relief_sunken;
 
+    hw_event_wait_next(&event);
+    while(event.type != ei_ev_keydown) {
+        got_handled = EI_FALSE;
+        x = event.param.mouse.where.x;
+        y = event.param.mouse.where.y;
+        id_color = *(origin + (uint32_t)(x_max*y) + (uint32_t)x);
+        if (active_widget != NULL){
 
-                    hw_surface_lock(root_surface);
-                    dessin(&root_widget, root_surface, offscreen);
-                    hw_surface_unlock(root_surface);
-                    hw_surface_update_rects(root_surface, NULL);
+            got_handled = active_widget->wclass->handlefunc(active_widget, &event);
+            if (got_handled != EI_TRUE){
+                active_widget = NULL;
+            }
 
-                    ei_widget_destroy(button->widget->parent);
+        }
 
-                    hw_surface_lock(root_surface);
-                    dessin(&root_widget, root_surface, offscreen);
-                    hw_surface_unlock(root_surface);
-                    hw_surface_update_rects(root_surface, NULL);
-                    hw_event_wait_next(&event);
-                    continue;
-                } else {
-                    button->relief = ei_relief_sunken;
-                    hw_surface_lock(root_surface);
-                    dessin(&root_widget, root_surface, offscreen);
-                    hw_surface_unlock(root_surface);
-                    hw_surface_update_rects(root_surface, NULL);
-                    hw_event_wait_next(&event);
-                    while (event.type == ei_ev_mouse_move &&
-                           mouse_on_widget(event, button->widget->screen_location) == 1) {
-                        hw_event_wait_next(&event);
-                    }
-                    button->relief = ei_relief_raised;
-                    continue;
+        if (got_handled != EI_TRUE){
+
+            if (is_widget_button(id_color, offscreen) == 1) {
+                button = &(button_from_id(id_color, offscreen))->widget;
+                got_handled = button->wclass->handlefunc(button, &event);
+                if (got_handled){
+                    active_widget = button;
+                }
+            } else if (is_widget_frame(id_color, offscreen) == 1) {
+                frame = &(frame_from_id(id_color, offscreen))->widget;
+                got_handled = frame->wclass->handlefunc(frame, &event);
+                if (got_handled){
+                    active_widget = frame;
+                }
+            } else if (is_widget_toplevel(id_color, offscreen) == 1) {
+                toplevel = &toplevel_from_id(id_color, offscreen)->widget;
+                got_handled = toplevel->wclass->handlefunc(toplevel, &event);
+                if (got_handled){
+                    active_widget = toplevel;
                 }
             }
 
         }
-        hw_surface_lock(root_surface);
-        dessin(&root_widget, root_surface, offscreen);
-        hw_surface_unlock(root_surface);
-        hw_surface_update_rects(root_surface, NULL);
+        update_window(root_surface, offscreen, root_widget);
         hw_event_wait_next(&event);
     }
-    //getchar();
+
+
+
+
 }
 
 
@@ -222,3 +219,41 @@ ei_surface_t ei_app_root_surface(void){
 
 }
 
+/*
+    while (event.type != ei_ev_keydown) {
+        if (event.type == ei_ev_mouse_buttondown){
+            x = event.param.mouse.where.x;
+            y = event.param.mouse.where.y;
+            id_color = *(origin + (uint32_t)(x_max*y) + (uint32_t)x);
+            if(is_widget_button(id_color, offscreen) == 1){
+                button = button_from_id(id_color, offscreen);
+                if (is_widget_close(button) == 1){
+                    button->relief = ei_relief_sunken;
+                    update_window(root_surface, offscreen, root_widget);
+                    hw_event_wait_next(&event);
+                    while (event.type == ei_ev_mouse_move &&
+                           mouse_on_widget(event, button->widget->screen_location) == 1) {
+                           hw_event_wait_next(&event);
+                    }
+                    ei_widget_destroy(button->widget->parent);
+                    update_window(root_surface, offscreen, root_widget);
+                    continue;
+                } else {
+                    button->relief = ei_relief_sunken;
+                    update_window(root_surface, offscreen, root_widget);
+                    hw_event_wait_next(&event);
+                    while (event.type == ei_ev_mouse_move &&
+                           mouse_on_widget(event, button->widget->screen_location) == 1) {
+                        hw_event_wait_next(&event);
+                    }
+                    button->relief = ei_relief_raised;
+                    continue;
+                }
+            }
+
+        }
+        update_window(root_surface, offscreen, root_widget);
+        hw_event_wait_next(&event);
+
+    }
+     */

@@ -263,7 +263,7 @@ ei_linked_point_t* rounded_frame(ei_rect_t rect, int r, int parametre) {
 void  draw_button(ei_surface_t surface, ei_surface_t offscreen, ei_rect_t*	clipper,ei_rect_t rect, int r, ei_color_t color, ei_color_t off_color, int border_width, int param) {
 
     //If the button is very small, it is then a toplevel exit button
-    if (rect.size.width <= 10 || rect.size.height <= 10){
+    if (rect.size.width <= 20 || rect.size.height <= 20){
         color.red = 255;
         color.blue = 0;
         color.green = 0;
@@ -308,7 +308,7 @@ void  draw_button(ei_surface_t surface, ei_surface_t offscreen, ei_rect_t*	clipp
         ei_draw_polygon(surface, inside_frame, color, clipper);
         offscreen_frame = rounded_frame(rect, r, 1);
     } else if (param == 2) {
-        ei_point_t center = {rect.top_left.x, rect.top_left.y};
+        ei_point_t center = {rect.top_left.x + 11, rect.top_left.y + 11};
         ei_linked_point_t* cercle = circle(center, 8, 0, 359);
         ei_linked_point_t* half_circle1 = arc(center, 11, 45, 235);
         ei_linked_point_t* half_circle2 = arc(center, 11, 225, 55);
@@ -317,7 +317,7 @@ void  draw_button(ei_surface_t surface, ei_surface_t offscreen, ei_rect_t*	clipp
         ei_draw_polygon(surface, cercle, color, clipper);
         offscreen_frame = circle(center, 11, 0, 359);
     } else {
-        ei_point_t center = {rect.top_left.x, rect.top_left.y};
+        ei_point_t center = {rect.top_left.x +11, rect.top_left.y + 11};
         ei_linked_point_t* cercle = circle(center, 8, 0, 359);
         ei_linked_point_t* half_circle1 = arc(center, 11, 45, 235);
         ei_linked_point_t* half_circle2 = arc(center, 11, 225, 55);

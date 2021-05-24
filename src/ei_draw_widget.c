@@ -10,8 +10,23 @@
 
 ei_frame_cell frame_cell_head = {
         NULL,
+        0,
         NULL,
         NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        0,
+        0,
+        0,
+        0,
+        0,0,
+        0,
+        NULL,
+        0,
         ei_relief_none,
         NULL,
 };
@@ -19,29 +34,77 @@ ei_frame_cell frame_cell_head = {
 
 ei_button_cell button_cell_head = {
         NULL,
+        0,
         NULL,
         NULL,
         NULL,
-        ei_relief_raised,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        0,
+        0,
+        0,
+        0,
+        0,0,
+        0,
+        NULL,
+        0,
+        0,
+        ei_relief_none,
+        NULL,
 };
 
 ei_text_cell text_cell_head = {
         NULL,
+        0,
         NULL,
         NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        0,
+        0,
+        0,
+        0,
+        0,0,
+        0,
+        NULL,
+        0,
         NULL,
         NULL,
 };
 
 ei_toplevel_cell toplevel_cell_head = {
         NULL,
+        0,
         NULL,
         NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        0,
+        0,
+        0,
+        0,
+        0,0,
+        0,
+        NULL,
+        0,
         NULL,
         NULL,
         NULL,
         NULL,
 };
+
+
 
 void dessin(ei_widget_t* widget, ei_surface_t surface, ei_surface_t offscreen){
 
@@ -355,7 +418,7 @@ void	drawfunc_toplevel		(struct ei_widget_t*	widget,
     ei_toplevel_cell* toplevel = toplevel_from_id(widget->pick_id, surface);
 
     //Dessin de la barre d'en tête :
-    ei_size_t bande_size = {widget->screen_location.size.width, 40};
+    ei_size_t bande_size = {widget->screen_location.size.width, 45};
     ei_rect_t bande_rect = {widget->screen_location.top_left, bande_size};
     ei_linked_point_t* bande_frame = rounded_frame(bande_rect, 15, 1);
     ei_color_t bande_color = {0,0,100,0};
@@ -364,7 +427,7 @@ void	drawfunc_toplevel		(struct ei_widget_t*	widget,
 
     //Dessin du corp de la toplevel
     ei_size_t corp_size = {widget->screen_location.size.width, widget->screen_location.size.height};
-    ei_point_t corp_top_left = {widget->screen_location.top_left.x, widget->screen_location.top_left.y + 25};
+    ei_point_t corp_top_left = {widget->screen_location.top_left.x, widget->screen_location.top_left.y + 30};
     ei_rect_t corp_rect = {corp_top_left, corp_size};
     ei_linked_point_t* corp_frame = rounded_frame(corp_rect, 0, 1);
     ei_draw_polygon(surface, corp_frame, *(toplevel->color), clipper);
@@ -461,7 +524,55 @@ ei_bool_t ei_frame_handlefunc_t (struct ei_widget_t*	widget,
 
 ei_bool_t ei_button_handlefunc_t (struct ei_widget_t*	widget,
                                  struct ei_event_t*	event){
-    return 0;
+
+    ei_button_cell*  button = (ei_button_cell*)widget;
+    if (mouse_on_widget(*event, *(widget->content_rect)) == 1) {
+        if (event->type == ei_ev_mouse_buttondown) {
+            button->relief = ei_relief_sunken; //Pas besoin de disjonction de cas
+            return EI_TRUE;
+        } else if (event->type == ei_ev_mouse_buttonup) {
+            if (is_widget_close(button) == 1) {
+                //If the button has been pushed we close the toplevel
+                if (button->relief == ei_relief_sunken) {
+                    ei_widget_destroy(widget->parent);
+                    return EI_TRUE;
+                } else {
+                    //Else nothing happens and the event isn't handled
+                    return EI_FALSE;
+                }
+            } else {
+                if (button->relief == ei_relief_sunken) {
+                    button->relief = ei_relief_raised;
+                    return EI_TRUE;
+                } else {
+                    return EI_FALSE;
+                }
+            }
+        } else {
+            if (event->type == ei_ev_mouse_move) {
+                return EI_TRUE;
+            }
+            return EI_FALSE;
+        }
+    } else {
+        if (event->type == ei_ev_mouse_buttondown){
+
+        } else if (event->type == ei_ev_mouse_buttonup) {
+            if (button->relief == ei_relief_sunken){
+                button->relief = ei_relief_raised;
+                return EI_TRUE;
+            } else {
+                return EI_FALSE;
+            }
+        } else {
+            if (button->relief == ei_relief_sunken){
+                return EI_TRUE;
+            } else {
+                return EI_FALSE;
+            }
+        }
+    }
+
 }
 
 ei_bool_t ei_text_handlefunc_t (struct ei_widget_t*	widget,
@@ -477,19 +588,21 @@ ei_bool_t ei_toplevel_handlefunc_t (struct ei_widget_t*	widget,
 
 struct ei_frame_cell* get_frame_cell(struct ei_widget_t* widget){
     ei_frame_cell *temp = &frame_cell_head;
-
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
     //Si la liste chainée est vide
-    if (temp->widget == NULL){
-        temp->widget = widget;
+    if (temp_widget->wclass == NULL){
+        temp->widget = *widget;
         temp->next = NULL;
         return temp;
-    } else {
-        if (temp->widget->pick_id == widget->pick_id){
+    }  else {
+        temp_widget = (ei_widget_t*)temp;
+        if (temp_widget->pick_id == widget->pick_id){
             return temp;
         }
         while (temp->next != NULL ) {
             //Si la prochaine cellule est la bonne on la retourne
-            if (temp->next->widget->pick_id == widget->pick_id){
+            temp_widget = (ei_widget_t*)temp->next;
+            if (temp_widget->pick_id == widget->pick_id){
                 return temp->next;
             //Sinon on cherche encore
             } else {
@@ -499,7 +612,7 @@ struct ei_frame_cell* get_frame_cell(struct ei_widget_t* widget){
         //Si on a pas trouvé de cellule on en crée une nouvelle
         if (temp->next == NULL) {
             temp->next = (ei_frame_cell*)malloc(sizeof(ei_frame_cell));
-            temp->next->widget = widget;
+            temp->next->widget = *widget;
             temp->next->next = NULL;
             return temp->next;
         }
@@ -510,18 +623,21 @@ struct ei_frame_cell* get_frame_cell(struct ei_widget_t* widget){
 
 struct ei_button_cell* get_button_cell(struct ei_widget_t* widget){
     ei_button_cell *temp = &button_cell_head;
-
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
     //Si la liste chainée est vide
-    if (temp->widget == NULL){
-        temp->widget = widget;
+    if (temp_widget->wclass == NULL){
+        temp->widget = *widget;
         temp->next = NULL;
-    } else {
-        if (temp->widget->pick_id == widget->pick_id){
+        return temp;
+    }  else {
+        temp_widget = (ei_widget_t*)temp;
+        if (temp_widget->pick_id == widget->pick_id){
             return temp;
         }
-        while (temp->next != NULL ) {
+        while (temp->next != NULL) {
             //Si la prochaine cellule est la bonne on la retourne
-            if (temp->next->widget->pick_id == widget->pick_id){
+            temp_widget = (ei_widget_t*)temp->next;
+            if (temp_widget->pick_id == widget->pick_id){
                 return temp->next;
                 //Sinon on cherche encore
             } else {
@@ -531,7 +647,7 @@ struct ei_button_cell* get_button_cell(struct ei_widget_t* widget){
         //Si on a pas trouvé de cellule on en crée une nouvelle
         if (temp->next == NULL) {
             temp->next = (ei_button_cell*)malloc(sizeof(ei_button_cell));
-            temp->next->widget = widget;
+            temp->next->widget = *widget;
             temp->next->next = NULL;
             return temp->next;
         }
@@ -541,18 +657,21 @@ struct ei_button_cell* get_button_cell(struct ei_widget_t* widget){
 
 struct ei_text_cell* get_text_cell(struct ei_widget_t* widget){
     ei_text_cell *temp = &text_cell_head;
-
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
     //Si la liste chainée est vide
-    if (temp->widget == NULL){
-        temp->widget = widget;
+    if (temp_widget->wclass == NULL){
+        temp->widget = *widget;
         temp->next = NULL;
-    } else {
-        if (temp->widget->pick_id == widget->pick_id){
+        return temp;
+    }  else {
+        temp_widget = (ei_widget_t*)temp;
+        if (temp_widget->pick_id == widget->pick_id){
             return temp;
         }
-        while (temp->next != NULL ) {
+        while (temp->next != NULL) {
             //Si la prochaine cellule est la bonne on la retourne
-            if (temp->next->widget->pick_id == widget->pick_id){
+            temp_widget = (ei_widget_t*)temp->next;
+            if (temp_widget->pick_id == widget->pick_id){
                 return temp->next;
                 //Sinon on cherche encore
             } else {
@@ -562,27 +681,31 @@ struct ei_text_cell* get_text_cell(struct ei_widget_t* widget){
         //Si on a pas trouvé de cellule on en crée une nouvelle
         if (temp->next == NULL) {
             temp->next = (ei_text_cell*)malloc(sizeof(ei_text_cell));
-            temp->next->widget = widget;
+            temp->next->widget = *widget;
             temp->next->next = NULL;
             return temp->next;
         }
     }
 }
 
+
 struct ei_toplevel_cell* get_toplevel_cell(struct ei_widget_t* widget){
     ei_toplevel_cell *temp = &toplevel_cell_head;
-
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
     //Si la liste chainée est vide
-    if (temp->widget == NULL){
-        temp->widget = widget;
+    if (temp_widget->wclass == NULL){
+        temp->widget = *widget;
         temp->next = NULL;
+        return temp;
     } else {
-        if (temp->widget->pick_id == widget->pick_id){
+        temp_widget = (ei_widget_t*)temp;
+        if (temp_widget->pick_id == widget->pick_id){
             return temp;
         }
-        while (temp->next != NULL ) {
+        while (temp->next != NULL) {
             //Si la prochaine cellule est la bonne on la retourne
-            if (temp->next->widget->pick_id == widget->pick_id){
+            temp_widget = (ei_widget_t*)temp->next;
+            if (temp_widget->pick_id == widget->pick_id){
                 return temp->next;
                 //Sinon on cherche encore
             } else {
@@ -592,7 +715,7 @@ struct ei_toplevel_cell* get_toplevel_cell(struct ei_widget_t* widget){
         //Si on a pas trouvé de cellule on en crée une nouvelle
         if (temp->next == NULL) {
             temp->next = (ei_toplevel_cell*)malloc(sizeof(ei_toplevel_cell));
-            temp->next->widget = widget;
+            temp->next->widget = *widget;
             temp->next->next = NULL;
             return temp->next;
         }
@@ -600,13 +723,16 @@ struct ei_toplevel_cell* get_toplevel_cell(struct ei_widget_t* widget){
 }
 
 
+
 int is_widget_frame(uint32_t id, ei_surface_t surface){
     ei_frame_cell *temp = &frame_cell_head;
-    while (temp->widget != NULL){
-        if (ei_map_rgba(surface, *(temp->widget->pick_color) ) == id){
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
+    while (temp_widget != NULL){
+        if (ei_map_rgba(surface, *(temp_widget->pick_color) ) == id){
             return 1;
         }
         temp = temp->next;
+        temp_widget = (ei_widget_t*)temp;
     }
     return 0;
 }
@@ -614,35 +740,40 @@ int is_widget_frame(uint32_t id, ei_surface_t surface){
 
 int is_widget_button(uint32_t id, ei_surface_t surface){
     ei_button_cell *temp = &button_cell_head;
-    while (temp != NULL){
-        if (temp->widget != NULL) {
-        if (ei_map_rgba(surface, *(temp->widget->pick_color)) == id) {
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
+    while (temp_widget != NULL){
+        if (ei_map_rgba(surface, *(temp_widget->pick_color) ) == id){
             return 1;
         }
         temp = temp->next;
-    }
+        temp_widget = (ei_widget_t*)temp;
     }
     return 0;
 }
 
+
 int is_widget_text(uint32_t id, ei_surface_t surface){
     ei_text_cell *temp = &text_cell_head;
-    while (temp->widget != NULL){
-        if (ei_map_rgba(surface, *(temp->widget->pick_color) ) == id){
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
+    while (temp_widget != NULL){
+        if (ei_map_rgba(surface, *(temp_widget->pick_color) ) == id){
             return 1;
         }
         temp = temp->next;
+        temp_widget = (ei_widget_t*)temp;
     }
     return 0;
 }
 
 int is_widget_toplevel(uint32_t id, ei_surface_t surface){
     ei_toplevel_cell *temp = &toplevel_cell_head;
-    while (temp->widget != NULL){
-        if (ei_map_rgba(surface, *(temp->widget->pick_color) ) == id){
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
+    while (temp_widget != NULL){
+        if (ei_map_rgba(surface, *(temp_widget->pick_color) ) == id){
             return 1;
         }
         temp = temp->next;
+        temp_widget = (ei_widget_t*)temp;
     }
     return 0;
 }
@@ -650,45 +781,52 @@ int is_widget_toplevel(uint32_t id, ei_surface_t surface){
 
 struct ei_button_cell* button_from_id(uint32_t id, ei_surface_t surface){
     ei_button_cell *temp = &button_cell_head;
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
     while (temp != NULL){
-        if (ei_map_rgba(surface, *(temp->widget->pick_color) ) == id){
+        if (ei_map_rgba(surface, *(temp_widget->pick_color) ) == id){
             return temp;
         }
         temp = temp->next;
+        temp_widget = (ei_widget_t*)temp;
     }
     return NULL;
 }
 
 struct ei_frame_cell* frame_from_id(uint32_t id, ei_surface_t surface){
     ei_frame_cell *temp = &frame_cell_head;
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
     while (temp != NULL){
-        if (ei_map_rgba(surface, *(temp->widget->pick_color) ) == id){
+        if (ei_map_rgba(surface, *(temp_widget->pick_color) ) == id){
             return temp;
         }
         temp = temp->next;
+        temp_widget = (ei_widget_t*)temp;
     }
     return NULL;
 }
 
 struct ei_text_cell* text_from_id(uint32_t id, ei_surface_t surface){
     ei_text_cell *temp = &text_cell_head;
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
     while (temp != NULL){
-        uint32_t id_a_voir = ei_map_rgba(surface, *(temp->widget->pick_color));
-        if (temp->widget->pick_id == id){
+        if (temp_widget->pick_id == id){
             return temp;
         }
         temp = temp->next;
+        temp_widget = (ei_widget_t*)temp;
     }
     return NULL;
 }
 
 struct ei_toplevel_cell* toplevel_from_id(uint32_t id, ei_surface_t surface){
     ei_toplevel_cell *temp = &toplevel_cell_head;
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
     while (temp != NULL){
-        if (temp->widget->pick_id  == id){
+        if (temp_widget->pick_id  == id){
             return temp;
         }
         temp = temp->next;
+        temp_widget = (ei_widget_t*)temp;
     }
     return NULL;
     }
@@ -727,8 +865,9 @@ void recursion_destroy (ei_widget_t* widget){
 }
 
 int is_widget_close(ei_button_cell* button_cell){
-    if (strcmp(button_cell->widget->parent->wclass->name, "toplevel") == 0){
-        if (button_cell->widget->screen_location.top_left.y <= button_cell->widget->parent->screen_location.top_left.y + 30){
+    ei_widget_t* widget = (ei_widget_t*)button_cell;
+    if (strcmp(widget->parent->wclass->name, "toplevel") == 0){
+        if (widget->content_rect->top_left.y <= widget->parent->content_rect->top_left.y + 30){
             return 1;
         } else {
             return  0;
@@ -737,3 +876,17 @@ int is_widget_close(ei_button_cell* button_cell){
         return 0;
     }
 }
+
+void update_window(ei_surface_t root_surface, ei_surface_t offscreen, struct ei_widget_t root_widget){
+
+    hw_surface_lock(root_surface);
+    dessin(&root_widget, root_surface, offscreen);
+    hw_surface_unlock(root_surface);
+    hw_surface_update_rects(root_surface, NULL);
+
+}
+
+struct ei_button_cell get_button_cell_head(void){
+    return button_cell_head;
+}
+
