@@ -61,54 +61,55 @@ void			ei_draw_polyline	(ei_surface_t			surface,
 
             if (abs(delta_x) > abs(delta_y)) {
                 if (delta_y >= 0 && delta_x > 0) {
-                    ei_color_1_pos_x_pos_y(surface, int_color, start, end);
+                    ei_color_1_pos_x_pos_y(surface, int_color, start, end, clipper);
                 }
                 else if (delta_y <= 0 && delta_x > 0) {
-                    ei_color_1_pos_x_neg_y(surface, int_color, start, end);
+                    ei_color_1_pos_x_neg_y(surface, int_color, start, end, clipper);
                 }
 
                 else if (delta_y > 0 && delta_x < 0) {
-                    ei_color_1_neg_x_pos_y(surface, int_color, start, end);
+                    ei_color_1_neg_x_pos_y(surface, int_color, start, end, clipper);
                 }
                 else {
-                    ei_color_1_neg_x_neg_y(surface, int_color, start, end);
+                    ei_color_1_neg_x_neg_y(surface, int_color, start, end, clipper);
                 }
                 }
 
 
             else if (abs(delta_y) > abs(delta_x)) {
                 if (delta_y>0 && delta_x>=0) {
-                    ei_color_2_pos_x_pos_y(surface, int_color, start, end);
+                    ei_color_2_pos_x_pos_y(surface, int_color, start, end, clipper);
                 }
                 else if (delta_y < 0 && delta_x >= 0) {
-                    ei_color_2_pos_x_neg_y(surface, int_color, start, end);
+                    ei_color_2_pos_x_neg_y(surface, int_color, start, end, clipper);
                 }
                 else if (delta_y > 0 && delta_x < 0) {
-                    ei_color_2_neg_x_pos_y(surface, int_color, start, end);
+                    ei_color_2_neg_x_pos_y(surface, int_color, start, end, clipper);
                 }
                 else {
-                    ei_color_2_neg_x_neg_y(surface, int_color, start, end);
+                    ei_color_2_neg_x_neg_y(surface, int_color, start, end, clipper);
                 }
 
             }
             else {
 		if (delta_y>0 && delta_x>0){
-		    ei_color_3_pos_x_pos_y(surface, int_color, start, end);
+		    ei_color_3_pos_x_pos_y(surface, int_color, start, end, clipper);
 		}            	
-                else if (delta_y < 0 && delta_x >= 0) {
-                    ei_color_3_pos_x_neg_y(surface, int_color, start, end);
+		else if (delta_y < 0 && delta_x >= 0) {
+                    ei_color_3_pos_x_neg_y(surface, int_color, start, end, clipper);
                 }
-                else if (delta_y > 0 && delta_x < 0) {
-                    ei_color_3_neg_x_pos_y(surface, int_color, start, end);
+		else if (delta_y > 0 && delta_x < 0) {
+                    ei_color_3_neg_x_pos_y(surface, int_color, start, end, clipper);
                 }
-                else {
-                    ei_color_3_neg_x_neg_y(surface, int_color, start, end);
+		else {
+                    ei_color_3_neg_x_neg_y(surface, int_color, start, end, clipper);
                 }
         }
             start = start->next;
             end = end->next;
 
-};
+
+}
 
 }
 
