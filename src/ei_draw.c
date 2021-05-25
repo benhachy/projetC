@@ -408,8 +408,8 @@ void			ei_fill			(ei_surface_t		surface,
     }
 
     uint32_t int_color = ei_map_rgba(surface, non_const_color);
-    for (int i = start_i ; i< taille_surface.width ; i++){
-        for ( int j = start_j ; j< taille_surface.height; j++){
+    for (int i = start_i ; i< start_i + taille_surface.width ; i++){
+        for ( int j = start_j ; j< start_j + taille_surface.height; j++){
             *(origine_surface + (uint32_t)(x_max_surface*j) + (uint32_t)i) = int_color;
 
         }
