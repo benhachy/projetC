@@ -36,7 +36,8 @@ void        ei_color_pixel(ei_surface_t    surface,
 void        ei_color_1_pos_x_pos_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end);
+                                   ei_linked_point_t*  end,
+                                   ei_rect_t* clipper);
 
 
 /**
@@ -50,7 +51,8 @@ void        ei_color_1_pos_x_pos_y(ei_surface_t        surface,
 void        ei_color_1_pos_x_neg_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end);
+                                   ei_linked_point_t*  end,
+                                   ei_rect_t* clipper);
 
 
 /**
@@ -64,8 +66,8 @@ void        ei_color_1_pos_x_neg_y(ei_surface_t        surface,
 void        ei_color_1_neg_x_pos_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end);
-
+                                   ei_linked_point_t*  end,
+                                   ei_rect_t* clipper);
 
 /**
  *  \brief Draws a line of x-dominant slope with a negative x-slope and a negative y-slope
@@ -78,7 +80,8 @@ void        ei_color_1_neg_x_pos_y(ei_surface_t        surface,
 void        ei_color_1_neg_x_neg_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end);
+                                   ei_linked_point_t*  end,
+                                   ei_rect_t* clipper);
 
 
 /**
@@ -92,7 +95,8 @@ void        ei_color_1_neg_x_neg_y(ei_surface_t        surface,
 void        ei_color_2_pos_x_pos_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end);
+                                   ei_linked_point_t*  end,
+                                   ei_rect_t* clipper);
 
 
 /**
@@ -106,7 +110,8 @@ void        ei_color_2_pos_x_pos_y(ei_surface_t        surface,
 void        ei_color_2_pos_x_neg_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end);
+                                   ei_linked_point_t*  end,
+                                   ei_rect_t* clipper);
 
 
 /**
@@ -120,7 +125,8 @@ void        ei_color_2_pos_x_neg_y(ei_surface_t        surface,
 void        ei_color_2_neg_x_pos_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end);
+                                   ei_linked_point_t*  end,
+                                   ei_rect_t* clipper);
 
 
 /**
@@ -134,8 +140,8 @@ void        ei_color_2_neg_x_pos_y(ei_surface_t        surface,
 void        ei_color_2_neg_x_neg_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end);
-
+                                   ei_linked_point_t*  end,
+                                   ei_rect_t* clipper);
 /**
  *  \brief Draws a line of x-dominant slope with a positive x-slope and a positive y-slope
  *
@@ -147,7 +153,8 @@ void        ei_color_2_neg_x_neg_y(ei_surface_t        surface,
 void        ei_color_3_pos_x_pos_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end);
+                                   ei_linked_point_t*  end,
+                                   ei_rect_t* clipper);
                                    
 /**
  *  \brief Draws a line of x-dominant slope with a positive x-slope and a negative y-slope
@@ -160,7 +167,8 @@ void        ei_color_3_pos_x_pos_y(ei_surface_t        surface,
 void        ei_color_3_pos_x_neg_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end);
+                                   ei_linked_point_t*  end,
+                                   ei_rect_t* clipper);
                                    
 /**
  *  \brief Draws a line of x-dominant slope with a negative x-slope and a positive y-slope
@@ -173,7 +181,8 @@ void        ei_color_3_pos_x_neg_y(ei_surface_t        surface,
 void        ei_color_3_neg_x_pos_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end);
+                                   ei_linked_point_t*  end,
+                                   ei_rect_t* clipper);
 
 /**
  *  \brief Draws a line of x-dominant slope with a negative x-slope and a negative y-slope
@@ -186,6 +195,7 @@ void        ei_color_3_neg_x_pos_y(ei_surface_t        surface,
 void        ei_color_3_neg_x_neg_y(ei_surface_t        surface,
                                    uint32_t            color,
                                    ei_linked_point_t*  start,
-                                   ei_linked_point_t*  end);
+                                   ei_linked_point_t*  end,
+                                   ei_rect_t* clipper);
 
 #endif //PROJETC_IG_EI_COLORING_H
