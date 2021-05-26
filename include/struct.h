@@ -86,10 +86,13 @@ void print_s_Array(Segment array[], int size);
 
 /** 
 * @brief  Retourne la structure Tc nécessaire au dessin du polygone 
-          défini par l'ensemble de points
+          défini par l'ensemble de points donné
 */ 
 struct tc_cell* get_tc(ei_linked_point_t*	first_point);
 
+/** 
+* @brief  Ajoute à la srutcuture tca_cell une nouvelle cellule avec les attributs données en paramètre 
+*/ 
 void* tca_append(struct tca_cell** tca, int y_max, float x_min, float m);
 
 void sort_tca(struct tca_cell** tca);
