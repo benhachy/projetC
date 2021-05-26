@@ -55,18 +55,14 @@ void			ei_draw_polyline	(ei_surface_t			surface,
         ei_linked_point_t* start = (ei_linked_point_t*)malloc(sizeof(ei_linked_point_t));
         start->next = first_point->next;
         start->point = first_point->point;
-
         while(start->next != NULL) {
+
 
             ei_linked_point_t* end = start->next;
             int delta_x = end->point.x - start->point.x;
             int delta_y = end->point.y - start->point.y;
             uint32_t int_color = ei_map_rgba(surface, color);
 
-            // Distinction de trois cas selon abs(delta_x) et abs(delta_y).
-            // Dans chaque cas, il y a quatres sous cas selon les signes de delta_x et delta_y
-            // Les fonction ei_colot_i_{pos,neg}x_{pos,neg}y sont les fonctions qui réalise le coloriage adapté à chaque sous cas,
-            // Elles sont implémentées dans ei_coloring.c
 
             if (abs(delta_x) > abs(delta_y)) {
                 if (delta_y >= 0 && delta_x > 0) {
@@ -101,22 +97,21 @@ void			ei_draw_polyline	(ei_surface_t			surface,
 
             }
             else {
-		        if (delta_y>0 && delta_x>0){
-		            ei_color_3_pos_x_pos_y(surface, int_color, start, end, clipper);
-		        }
-		        else if (delta_y < 0 && delta_x >= 0) {
-		            ei_color_3_pos_x_neg_y(surface, int_color, start, end, clipper);
-		        }
-		        else if (delta_y > 0 && delta_x < 0) {
-		            ei_color_3_neg_x_pos_y(surface, int_color, start, end, clipper);
-		        }
-		        else {
-		            ei_color_3_neg_x_neg_y(surface, int_color, start, end, clipper);
+		if (delta_y>0 && delta_x>0){
+		    ei_color_3_pos_x_pos_y(surface, int_color, start, end, clipper);
+		}            	
+		else if (delta_y < 0 && delta_x >= 0) {
+                    ei_color_3_pos_x_neg_y(surface, int_color, start, end, clipper);
                 }
-            }
-
+		else if (delta_y > 0 && delta_x < 0) {
+                    ei_color_3_neg_x_pos_y(surface, int_color, start, end, clipper);
+                }
+		else {
+                    ei_color_3_neg_x_neg_y(surface, int_color, start, end, clipper);
+                }
+        }
             start = start->next;
-
+            end = end->next;
 
 
 }
@@ -141,11 +136,14 @@ void			ei_draw_polygon		(ei_surface_t			surface,
     first->next = first_point->next;
     first->point = first_point->point;
     struct tc_cell* tc = get_tc(first);
+    struct tc_cell* tc_head = tc;
     struct tc_cell* tc_temp = tc;
     struct tc_carac* tc_c_temp ;
     struct tca_cell* tca = NULL;
+    struct tca_cell* tca_cell_head;
     int size = 0;
     int y = get_min(first);
+    int c = 0;
 
 
     while (tc_temp->next != NULL){
@@ -164,6 +162,10 @@ void			ei_draw_polygon		(ei_surface_t			surface,
     while(tc_c_temp->x_min != -1){
         tca_append(&tca, tc_c_temp->y_max, (float)tc_c_temp->x_min, tc_c_temp->m);
         tc_c_temp = tc_c_temp->next;
+        //Making sure that the head_cell is indeed the first one
+        if (c == 0 ){
+            tca_cell_head = tca;
+        }
     }
     y++;
 
@@ -241,6 +243,23 @@ void			ei_draw_polygon		(ei_surface_t			surface,
 
         }
         }
+
+    //Freeing the memory allocated to the tca cells
+    tca_cell* free_temp_tca = tca_cell_head;
+    while(tca_cell_head != NULL){
+        tca_cell_head = tca_cell_head->next;
+        free(free_temp_tca);
+        free_temp_tca = tca_cell_head;
+    }
+
+    //Freeing the memory allocated to the tc cells
+    struct tc_cell* free_temp_tc = tc_head;
+    while(tc_head != NULL){
+        tc_head = tc_head->next;
+        free(free_temp_tc->tc_carac);
+        free(free_temp_tc);
+        free_temp_tc = tc_head;
+    }
 
     free(first);
 
@@ -382,30 +401,22 @@ void			ei_draw_text		(ei_surface_t		surface,
                                      
                                      {
 		ei_surface_t text_surface;
-<<<<<<< Updated upstream
-		//Copiage du  contenu de text dans text_copy
-		char* text_copy = malloc(strlen(text));
-=======
 		char* text_copy = (char*)malloc(strlen(text));
->>>>>>> Stashed changes
 		strncpy(text_copy, text, strlen(text));
-
 		int x = where->x;
 		int y = where->y;
-        //text_surface est une surface contenant le text voulu
+
 		text_surface = hw_text_create_surface(	text_copy,
 					 			font,
 					 			color);
 
 		ei_size_t taille_text;
 		taille_text = hw_surface_get_size(text_surface);
-		// Délacration de rectangle qui sera la zone à modifier dans la destination
 		ei_rect_t dst_rect = ei_rect_zero();
 		ei_rect_t* ptr_dst_rect = &dst_rect;
 		ptr_dst_rect->top_left.x = x;
 		ptr_dst_rect->top_left.y = y;
 		ptr_dst_rect->size = taille_text;
-
 		ei_copy_surface(surface ,ptr_dst_rect, text_surface, NULL, EI_TRUE);
 
 		free(text_copy);
@@ -416,41 +427,34 @@ void			ei_fill			(ei_surface_t		surface,
                                     const ei_rect_t*	clipper){
 
 
-    uint32_t *origine_surface = (uint32_t *)hw_surface_get_buffer(surface); // pointeur vers le premier pixel de "surface"
-    ei_size_t taille_surface = hw_surface_get_size(surface);  // Taille de "surface"
+    uint32_t *origine_surface = (uint32_t *)hw_surface_get_buffer(surface);
+    ei_size_t taille_surface = hw_surface_get_size(surface);
     int x_max_surface = taille_surface.width;
-    // Variables de départ pour le clipper
     int start_i = 0;
     int start_j = 0;
-    // Couleur non constante  pour pouvoir la passser comme paramètre de la fonction ei_map_rgba
+
     ei_color_t non_const_color = {0,0,0,0};
     non_const_color.red = color->red;
     non_const_color.blue = color->blue;
     non_const_color.green = color->green;
     non_const_color.alpha = color->alpha;
-    // Réglage des variables de départ
+
     if (clipper != NULL) {
         start_i = clipper->top_left.x;
         start_j = clipper->top_left.y;
         taille_surface = clipper->size;
     }
-    // Convertissement de la couleur de ei_colo_t en uint32_t
+
     uint32_t int_color = ei_map_rgba(surface, non_const_color);
     for (int i = start_i ; i< start_i + taille_surface.width ; i++){
         for ( int j = start_j ; j< start_j + taille_surface.height; j++){
-            *(origine_surface + (uint32_t)(x_max_surface*j) + (uint32_t)i) = int_color; // coloriage du pixel i,j
+            *(origine_surface + (uint32_t)(x_max_surface*j) + (uint32_t)i) = int_color;
 
         }
     }
 
 
 
-<<<<<<< Updated upstream
-
-
-
-=======
->>>>>>> Stashed changes
 
 }
 
