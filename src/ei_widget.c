@@ -44,7 +44,7 @@ ei_widget_t*    ei_widget_create(ei_widgetclass_name_t	class_name,
 
     new_widget->user_data = user_data;
     new_widget->destructor = destructor;
-
+    //Configuration 
     ei_color_t* id_color = (ei_color_t*)malloc(sizeof(ei_color_t));
     red_id++;
     id_color->red = red_id;
@@ -140,7 +140,7 @@ void			ei_frame_configure		(ei_widget_t*		widget,
     } else {
         frame->relief = ei_relief_none;
     }
-
+    //Configuration du texte
     if (text != NULL) {
         ei_widget_t *text_widget = ei_widget_create("text", widget, NULL, NULL);
         ei_place(text_widget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
@@ -176,7 +176,7 @@ void			ei_frame_configure		(ei_widget_t*		widget,
         free(text_height);
     }
 
-
+    //Configuration de l'image
     if (img != NULL) {
 
         ei_widget_t *image_widget = ei_widget_create("image", widget, NULL, NULL);
@@ -305,6 +305,7 @@ void			ei_button_configure		(ei_widget_t*		widget,
         text_widget->placer_params->h = text_height;
         ei_placer_run(text_widget);
     }
+    //Configuration de l'image si elle est présente
     if (img != NULL) {
 
         ei_widget_t *image_widget = ei_widget_create("image", widget, NULL, NULL);
@@ -436,6 +437,7 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
         button_cell->relief = ei_relief_raised;
         ei_placer_run(button_widget);
     }
+    //Configuration du titre s'il est présent
     if (title != NULL) {
         if (*title != NULL) {
             ei_widget_t *text_widget = ei_widget_create("text", widget, NULL, NULL);
