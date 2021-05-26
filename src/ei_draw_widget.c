@@ -104,17 +104,40 @@ ei_toplevel_cell toplevel_cell_head = {
         NULL,
 };
 
+ei_image_cell image_cell_head = {
+        NULL,
+        0,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        0,
+        0,
+        0,
+        0,
+        0,0,
+        0,
+        NULL,
+        0,
+        NULL,
+        NULL,
+};
 
 
-void dessin(ei_widget_t* widget, ei_surface_t surface, ei_surface_t offscreen){
+
+void dessin(ei_widget_t* widget, ei_surface_t surface, ei_surface_t offscreen, ei_rect_t* clipper){
 
      //On commence par appeler la fonction drawfunc pour dessiner le premier widget
-     widget->wclass->drawfunc(widget, surface, offscreen, NULL);
+     widget->wclass->drawfunc(widget, surface, offscreen, clipper);
      ei_widget_t* descendant = widget->children_head;
      //On appelle récursivement la fonction pour dessiner tous les descendants dans la hiérarchie
         while (descendant != NULL)
         {
-                dessin(descendant, surface, offscreen);
+                dessin(descendant, surface, offscreen, widget->content_rect);
                 descendant = descendant->next_sibling;
         }
 
@@ -235,6 +258,34 @@ struct ei_widget_t* allowfunc_toplevel(void) {
     return text_wid;
 };
 
+struct ei_widget_t* allowfunc_image(void) {
+    struct ei_widget_t* image_wid = (struct ei_widget_t*)malloc(sizeof(struct ei_widget_t));
+
+    image_wid->wclass = NULL;
+    image_wid->pick_id = 0;
+    image_wid->pick_color = NULL;
+    image_wid->user_data = NULL;
+    image_wid->destructor = NULL;
+
+    //Setting family parameters to NULL
+    image_wid->parent = NULL;
+    image_wid->children_head = NULL;
+    image_wid->children_tail = NULL;
+    image_wid->next_sibling = NULL;
+
+    //Setting geometry parameters to NULL
+    image_wid->placer_params = NULL;
+    image_wid->requested_size.height = 0;
+    image_wid->requested_size.width = 0;
+    image_wid->screen_location.top_left.x = 0;
+    image_wid->screen_location.top_left.y = 0;
+    image_wid->content_rect = NULL;
+
+    return image_wid;
+};
+
+
+
 
 //                                                   ||RELEASE FUNCTIONS||
 
@@ -290,6 +341,21 @@ void releasefunc_text(struct ei_widget_t* text_wid){
 
 
 void releasefunc_toplevel(struct ei_widget_t* text_wid){
+
+    free(text_wid->pick_color);
+    free(text_wid->user_data);
+    free(text_wid->destructor);
+
+
+    //Setting geometry parameters to NULL
+    free(text_wid->placer_params);
+    free(text_wid->content_rect);
+
+    free(text_wid);
+
+}
+
+void releasefunc_image(struct ei_widget_t* text_wid){
 
     free(text_wid->pick_color);
     free(text_wid->user_data);
@@ -421,24 +487,56 @@ void	drawfunc_toplevel		(struct ei_widget_t*	widget,
     ei_size_t bande_size = {widget->screen_location.size.width, 45};
     ei_rect_t bande_rect = {widget->screen_location.top_left, bande_size};
     ei_linked_point_t* bande_frame = rounded_frame(bande_rect, 15, 1);
-    ei_color_t bande_color = {0,0,100,0};
+    ei_color_t bande_color = {95, 105, 100, 1};
     ei_draw_polygon(surface, bande_frame, bande_color, clipper);
 
 
     //Dessin du corp de la toplevel
-    ei_size_t corp_size = {widget->screen_location.size.width, widget->screen_location.size.height};
-    ei_point_t corp_top_left = {widget->screen_location.top_left.x, widget->screen_location.top_left.y + 30};
+    ei_size_t border_size = {widget->screen_location.size.width, widget->screen_location.size.height};
+    ei_point_t border_top_left = {widget->screen_location.top_left.x, widget->screen_location.top_left.y + 30};
+    ei_rect_t border_rect = {border_top_left, border_size};
+    ei_linked_point_t* border_frame = rounded_frame(border_rect, 0, 1);
+    ei_draw_polygon(surface, border_frame, bande_color, clipper);
+
+    //Dessin du corp de la toplevel
+    ei_size_t corp_size = {widget->screen_location.size.width - 10, widget->screen_location.size.height -10};
+    ei_point_t corp_top_left = {widget->screen_location.top_left.x + 5, widget->screen_location.top_left.y + 35};
     ei_rect_t corp_rect = {corp_top_left, corp_size};
     ei_linked_point_t* corp_frame = rounded_frame(corp_rect, 0, 1);
     ei_draw_polygon(surface, corp_frame, *(toplevel->color), clipper);
 
 
-    //Dessin du bouton d'arrêt
 
 
 
 
+}
 
+void	drawfunc_image		(struct ei_widget_t*	widget,
+                               ei_surface_t		surface,
+                               ei_surface_t		pick_surface,
+                               ei_rect_t*		clipper){
+    ei_image_cell* image_cell = image_from_id(widget->pick_id, surface);
+    ei_point_t* where = &(widget->screen_location.top_left);
+
+    ei_surface_t image = image_cell->img;
+    ei_rect_t* img_rect = *(image_cell->img_rect);
+
+
+    ei_size_t dst_size = hw_surface_get_size(surface);
+
+
+
+    ei_rect_t dst_rect = {*where, dst_size};
+    ei_rect_t src_rect;
+    if (img_rect != NULL) {
+        src_rect = *img_rect;
+    } else {
+        src_rect = widget->parent->screen_location;
+    }
+
+    ei_copy_surface(surface, &dst_rect, image, &src_rect, EI_TRUE);
+    //Pas besoin de dessiner dans l'offscreen (Un image n'est pas un vrai widget)
 }
 
 
@@ -488,6 +586,16 @@ void	setdefaultsfunc_toplevel	(struct ei_widget_t*	widget){
 
 }
 
+void	setdefaultsfunc_image	(struct ei_widget_t*	widget){
+
+    ei_point_t top_left = {0,0};
+    //By default every frame is a square of size 10pixels
+    ei_size_t size = {10,10};
+    ei_rect_t screen_location = {top_left, size};
+    widget->content_rect = &(widget->screen_location);
+
+}
+
 
 //                                                   ||GEOMNOMNOMNOM FUNCTIONS||
 
@@ -513,6 +621,13 @@ void	geomnotifyfunc_toplevel	(struct ei_widget_t*	widget,
                                 ei_rect_t		rect){
 
 }
+
+void	geomnotifyfunc_image	(struct ei_widget_t*	widget,
+                                 ei_rect_t		rect){
+
+}
+
+
 
 //                                                   ||CAN YOU EVEN HANDLE ME? FUNCTIONS||
 
@@ -584,6 +699,13 @@ ei_bool_t ei_toplevel_handlefunc_t (struct ei_widget_t*	widget,
                                 struct ei_event_t*	event){
     return 0;
 }
+
+ei_bool_t ei_image_handlefunc_t (struct ei_widget_t*	widget,
+                                 struct ei_event_t*	event){
+
+    return 0;
+}
+
 
 
 struct ei_frame_cell* get_frame_cell(struct ei_widget_t* widget){
@@ -722,6 +844,41 @@ struct ei_toplevel_cell* get_toplevel_cell(struct ei_widget_t* widget){
     }
 }
 
+struct ei_image_cell* get_image_cell(struct ei_widget_t* widget){
+    ei_image_cell *temp = &image_cell_head;
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
+    //Si la liste chainée est vide
+    if (temp_widget->wclass == NULL){
+        temp->widget = *widget;
+        temp->next = NULL;
+        return temp;
+    }  else {
+        temp_widget = (ei_widget_t*)temp;
+        if (temp_widget->pick_id == widget->pick_id){
+            return temp;
+        }
+        while (temp->next != NULL) {
+            //Si la prochaine cellule est la bonne on la retourne
+            temp_widget = (ei_widget_t*)temp->next;
+            if (temp_widget->pick_id == widget->pick_id){
+                return temp->next;
+                //Sinon on cherche encore
+            } else {
+                temp = temp->next;
+            }
+        }
+        //Si on a pas trouvé de cellule on en crée une nouvelle
+        if (temp->next == NULL) {
+            temp->next = (ei_image_cell*)malloc(sizeof(ei_image_cell));
+            temp->next->widget = *widget;
+            temp->next->next = NULL;
+            return temp->next;
+        }
+    }
+}
+
+
+
 
 
 int is_widget_frame(uint32_t id, ei_surface_t surface){
@@ -831,6 +988,20 @@ struct ei_toplevel_cell* toplevel_from_id(uint32_t id, ei_surface_t surface){
     return NULL;
     }
 
+struct ei_image_cell* image_from_id(uint32_t id, ei_surface_t surface){
+    ei_image_cell *temp = &image_cell_head;
+    ei_widget_t* temp_widget = (ei_widget_t*)temp;
+    while (temp != NULL){
+        if (temp_widget->pick_id == id){
+            return temp;
+        }
+        temp = temp->next;
+        temp_widget = (ei_widget_t*)temp;
+    }
+    return NULL;
+}
+
+
 
 
 int mouse_on_widget(struct ei_event_t event, ei_rect_t rect){
@@ -880,7 +1051,7 @@ int is_widget_close(ei_button_cell* button_cell){
 void update_window(ei_surface_t root_surface, ei_surface_t offscreen, struct ei_widget_t root_widget){
 
     hw_surface_lock(root_surface);
-    dessin(&root_widget, root_surface, offscreen);
+    dessin(&root_widget, root_surface, offscreen, NULL);
     hw_surface_unlock(root_surface);
     hw_surface_update_rects(root_surface, NULL);
 

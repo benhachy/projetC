@@ -23,6 +23,8 @@ typedef struct ei_button_cell {
     int*			border_width;
     int*			corner_radius;
     ei_relief_t		relief;
+    ei_callback_t  callback;
+    void** user_param;;
 
     struct ei_button_cell* next;
 
@@ -66,8 +68,19 @@ typedef struct ei_toplevel_cell {
 
 }ei_toplevel_cell;
 
+typedef struct ei_image_cell {
 
-void dessin(ei_widget_t* widget, ei_surface_t surface, ei_surface_t offscreen);
+    ei_widget_t widget;
+    ei_surface_t		img;
+    ei_rect_t**		img_rect;
+    ei_anchor_t*		img_anchor;
+
+    struct ei_image_cell* next;
+
+}ei_image_cell;
+
+
+void dessin(ei_widget_t* widget, ei_surface_t surface, ei_surface_t offscreen, ei_rect_t* clipper);
 
 ei_bool_t ei_frame_handlefunc_t (struct ei_widget_t*	widget,
                                  struct ei_event_t*	event);
@@ -80,6 +93,10 @@ ei_bool_t ei_text_handlefunc_t (struct ei_widget_t*	widget,
 
 ei_bool_t ei_toplevel_handlefunc_t (struct ei_widget_t*	widget,
                                 struct ei_event_t*	event);
+
+ei_bool_t ei_image_handlefunc_t (struct ei_widget_t*	widget,
+                                 struct ei_event_t*	event);
+
 
 
 
@@ -95,6 +112,10 @@ void	geomnotifyfunc_text	(struct ei_widget_t*	widget,
 void	geomnotifyfunc_toplevel	(struct ei_widget_t*	widget,
                                 ei_rect_t		rect);
 
+void	geomnotifyfunc_image	(struct ei_widget_t*	widget,
+                                 ei_rect_t		rect);
+
+
 
 
 
@@ -106,6 +127,8 @@ void	setdefaultsfunc_button	(struct ei_widget_t*	widget);
 void	setdefaultsfunc_text	(struct ei_widget_t*	widget);
 
 void	setdefaultsfunc_toplevel	(struct ei_widget_t*	widget);
+
+void	setdefaultsfunc_image	(struct ei_widget_t*	widget);
 
 
 
@@ -131,6 +154,11 @@ void	drawfunc_toplevel		(struct ei_widget_t*	widget,
                               ei_surface_t		pick_surface,
                               ei_rect_t*		clipper);
 
+void	drawfunc_image		(struct ei_widget_t*	widget,
+                               ei_surface_t		surface,
+                               ei_surface_t		pick_surface,
+                               ei_rect_t*		clipper);
+
 
 
 
@@ -144,6 +172,8 @@ void releasefunc_text(struct ei_widget_t* button_wid);
 
 void releasefunc_toplevel(struct ei_widget_t* button_wid);
 
+void releasefunc_image(struct ei_widget_t* button_wid);
+
 
 
 
@@ -155,6 +185,9 @@ struct ei_widget_t* allowfunc_text(void);
 
 struct ei_widget_t* allowfunc_toplevel(void);
 
+struct ei_widget_t* allowfunc_image(void);
+
+
 
 
 
@@ -165,6 +198,8 @@ struct ei_button_cell* get_button_cell(struct ei_widget_t* widget);
 struct ei_text_cell* get_text_cell(struct ei_widget_t* widget);
 
 struct ei_toplevel_cell* get_toplevel_cell(struct ei_widget_t* widget);
+
+struct ei_image_cell* get_image_cell(struct ei_widget_t* widget);
 
 
 
@@ -187,6 +222,8 @@ struct ei_frame_cell* frame_from_id(uint32_t id, ei_surface_t surface);
 struct ei_text_cell* text_from_id(uint32_t id, ei_surface_t surface);
 
 struct ei_toplevel_cell* toplevel_from_id(uint32_t id, ei_surface_t surface);
+
+struct ei_image_cell* image_from_id(uint32_t id, ei_surface_t surface);
 
 
 

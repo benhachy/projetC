@@ -227,7 +227,56 @@ void			ei_button_configure		(ei_widget_t*		widget,
         text_widget->placer_params->h = text_height;
         ei_placer_run(text_widget);
     }
-    printf("pidou");
+    if (img != NULL) {
+
+        ei_widget_t *image_widget = ei_widget_create("image", widget, NULL, NULL);
+        ei_place(image_widget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        int *text_width = (int *) malloc(sizeof(int));
+        int *text_height = (int *) malloc(sizeof(int));
+
+        if (img_anchor != NULL) {
+            image_widget->placer_params->anchor = img_anchor;
+            image_widget->placer_params->anchor_data = *img_anchor;
+        }
+        ei_image_cell *image_cell = get_image_cell(image_widget);
+
+
+        image_cell->img_rect = img_rect;
+
+        image_cell->img = *img;
+
+        int r = *(button->border_width);
+        int y_rel = *(button->border_width);
+        int *ptr = &r;
+        int *ptr_y = &y_rel;
+
+        image_widget->placer_params->x_data = r;
+        image_widget->placer_params->y_data = y_rel;
+        image_widget->placer_params->x = ptr;
+        image_widget->placer_params->y = ptr_y;
+        image_widget->placer_params->w = text_width;
+        image_widget->placer_params->h = text_height;
+        ei_placer_run(image_widget);
+
+        free(text_width);
+        free(text_height);
+
+        //button->img = img;
+        //button->img_rect = img_rect;
+        //button->img_anchor = img_anchor;
+    }
+
+
+    if (callback != NULL){
+        button->callback = *callback;
+    } else {
+        button->callback = NULL;
+    }
+
+    if (user_param != NULL){
+        button->user_param = user_param;
+    }
+
 }
 
 void			ei_toplevel_configure		(ei_widget_t*		widget,
@@ -312,6 +361,39 @@ void			ei_toplevel_configure		(ei_widget_t*		widget,
         button_cell->relief = ei_relief_raised;
         ei_placer_run(button_widget);
     }
+    if (title != NULL) {
+        if (*title != NULL) {
+            ei_widget_t *text_widget = ei_widget_create("text", widget, NULL, NULL);
+            ei_place(text_widget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+            int *text_width = (int *) malloc(sizeof(int));
+            int *text_height = (int *) malloc(sizeof(int));
+
+            ei_text_cell *text_cell = get_text_cell(text_widget);
+
+
+            ei_color_t  black_color = {0,0,0,0};
+            text_cell->color = &black_color;
+            text_cell->text = title;
+            text_cell->text_font = ei_default_font;
+
+            float r = 0.15;
+            float y_rel = 0;
+            float *ptr = &r;
+            float *ptr_y = &y_rel;
+            hw_text_compute_size(*title, text_cell->text_font, text_width, text_height);
+            text_widget->placer_params->rx_data = r;
+            text_widget->placer_params->ry_data = y_rel;
+            text_widget->placer_params->rx = ptr;
+            text_widget->placer_params->ry = ptr_y;
+            text_widget->placer_params->w = text_width;
+            text_widget->placer_params->h = text_height;
+            ei_placer_run(text_widget);
+
+            free(text_width);
+            free(text_height);
+        }
+    }
+
 
 }
 

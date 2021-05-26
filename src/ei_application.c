@@ -109,6 +109,21 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
 
     ei_widgetclass_register(toplevel);
 
+    ei_widgetclass_t *image = (ei_widgetclass_t*) malloc(sizeof(ei_widgetclass_t));
+    char image_name[20] = "image";
+    for (int i = 0; i < 20; i++){
+        image->name[i] = image_name[i];
+    }
+    image->allocfunc = &allowfunc_image;
+    image->drawfunc = &drawfunc_image;
+    image->releasefunc = &releasefunc_image;
+    image->geomnotifyfunc = &geomnotifyfunc_image;
+    image->handlefunc = &ei_image_handlefunc_t;
+    image->setdefaultsfunc = &setdefaultsfunc_image;
+    image->next = NULL;
+
+    ei_widgetclass_register(image);
+
 
     ei_surface_t main_window = hw_create_window(main_window_size, fullscreen);
     offscreen = hw_surface_create(main_window,main_window_size, 0);

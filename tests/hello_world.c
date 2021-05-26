@@ -59,6 +59,7 @@ int main(int argc, char** argv)
 	ei_callback_t	button_callback 	= button_press;
 
 	ei_widget_t*	window;
+	ei_widget_t* window2;
 	ei_size_t	window_size		= {320,240};
 	char*		window_title		= "Hello World";
 	ei_color_t	window_color		= {0xA0,0xA0,0xA0, 0xff};
@@ -85,6 +86,8 @@ int main(int argc, char** argv)
 				 &button_border_width, NULL, &button_relief, &button_title, NULL, &button_text_color, NULL,
 				NULL, NULL, NULL, &button_callback, NULL);
 	ei_place(button, &button_anchor, &button_x, &button_y, NULL, NULL, &button_rel_x, &button_rel_y, &button_rel_width, NULL);
+
+
 
 	/* Run the application's main loop. */
 	ei_app_run();

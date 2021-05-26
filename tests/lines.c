@@ -153,7 +153,11 @@ int main(int argc, char** argv)
 	ei_surface_t		main_window	= NULL;
 	ei_color_t		white		= { 0xff, 0xff, 0xff, 0xff };
 	ei_rect_t*		clipper_ptr	= NULL;
+<<<<<<< Updated upstream
 	ei_rect_t		clipper		= ei_rect(ei_point(200, 150), ei_size(100, 100));
+=======
+	ei_rect_t		clipper		= ei_rect(ei_point(200, 150), ei_size(400, 300));
+>>>>>>> Stashed changes
 	clipper_ptr		= &clipper;
 	ei_event_t		event;
 
@@ -175,11 +179,18 @@ int main(int argc, char** argv)
 
 	/* Draw polylines. */
 	test_line	(main_window, clipper_ptr);
+<<<<<<< Updated upstream
 //	test_octogone	(main_window, clipper_ptr);
 //	test_square	(main_window, clipper_ptr);
 //	test_dot	(main_window, clipper_ptr);
 //  ei_draw_text(main_window, where, text, ei_default_font, color,NULL);
      test_copy(main_window);
+=======
+	test_octogone	(main_window, clipper_ptr);
+	test_square	(main_window, clipper_ptr);
+	test_dot	(main_window, clipper_ptr);
+	
+>>>>>>> Stashed changes
 	/* Unlock and update the surface. */
 	hw_surface_unlock(main_window);
 	hw_surface_update_rects(main_window, NULL);

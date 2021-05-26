@@ -11,6 +11,11 @@
 #include "hw_interface.h"
 #include "ei_utils.h"
 
+#define min(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _b : _a; })
+
 
 uint32_t		ei_map_rgba		(ei_surface_t surface, ei_color_t color){
     int ig = 0, ia =0, ir = 0, ib = 0;
@@ -115,6 +120,7 @@ void			ei_draw_polyline	(ei_surface_t			surface,
 
 
 }
+
 
 }
 
@@ -236,6 +242,8 @@ void			ei_draw_polygon		(ei_surface_t			surface,
         }
         }
 
+    free(first);
+
     }
 
 
@@ -283,8 +291,14 @@ int			ei_copy_surface		(ei_surface_t		destination,
     int width = 0;
     int height = 0;
 
-    if (dst_rect_copy->size.height != src_rect_copy->size.height || dst_rect_copy->size.width != src_rect_copy->size.width) {
-        return 1;}
+    if (dst_rect_copy->size.height != src_rect_copy->size.height){
+        dst_rect_copy->size.height = min(dst_rect_copy->size.height, src_rect_copy->size.height);
+        src_rect_copy->size.height = dst_rect_copy->size.height;
+    }
+    if (dst_rect_copy->size.width != src_rect_copy->size.width){
+        dst_rect_copy->size.width = min(dst_rect_copy->size.width, src_rect_copy->size.width);
+        src_rect_copy->size.width = dst_rect_copy->size.width;
+    }
     int y = src_rect_copy->top_left.y;
     int x = src_rect_copy->top_left.x;
     x_max_dst = hw_surface_get_rect(destination).size.width;
@@ -325,11 +339,11 @@ int			ei_copy_surface		(ei_surface_t		destination,
 
 
                 src_A = ((int)(color_src/pow(2,8*ia)))%(two_to_8);
-                src_B = ((int)(color_src/pow(2,8*ib)))%(two_to_8);
+                src_B = ((int)(color_src))%(two_to_8);
                 src_G = ((int)(color_src/pow(2,8*ig)))%(two_to_8);
                 src_R = ((int)(color_src/pow(2,8*ir)))%(two_to_8);
 
-                dst_B =  255;
+                dst_B = ((int)(color_dst/pow(2,8*ibd)))%(two_to_8);
                 dst_G =  ((int)(color_dst/pow(2,8*igd)))%(two_to_8);
                 dst_R =  ((int)(color_dst/pow(2,8*ird)))%(two_to_8);
 
@@ -347,11 +361,10 @@ int			ei_copy_surface		(ei_surface_t		destination,
         }
     }
 
+    //Freeing the allowed memory
+    free(dst_rect_copy);
+    free(src_rect_copy);
 
-
-    ei_linked_rect_t dst_rect_ext;
-    dst_rect_ext.rect = *dst_rect_copy;
-    dst_rect_ext.next = NULL;
 
 
     return 0;
@@ -369,8 +382,12 @@ void			ei_draw_text		(ei_surface_t		surface,
                                      
                                      {
 		ei_surface_t text_surface;
+<<<<<<< Updated upstream
 		//Copiage du  contenu de text dans text_copy
 		char* text_copy = malloc(strlen(text));
+=======
+		char* text_copy = (char*)malloc(strlen(text));
+>>>>>>> Stashed changes
 		strncpy(text_copy, text, strlen(text));
 
 		int x = where->x;
@@ -391,7 +408,7 @@ void			ei_draw_text		(ei_surface_t		surface,
 
 		ei_copy_surface(surface ,ptr_dst_rect, text_surface, NULL, EI_TRUE);
 
-                                     
+		free(text_copy);
                                      }
 
 void			ei_fill			(ei_surface_t		surface,
@@ -428,9 +445,12 @@ void			ei_fill			(ei_surface_t		surface,
 
 
 
+<<<<<<< Updated upstream
 
 
 
+=======
+>>>>>>> Stashed changes
 
 }
 
