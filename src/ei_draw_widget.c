@@ -8,6 +8,8 @@
 #include "ei_draw.h"
 #include "ei_event.h"
 
+//On commence par initialiser la tête des listes chainées
+//pour chaque classe de widget
 ei_frame_cell frame_cell_head = {
         NULL,
         0,
@@ -380,9 +382,11 @@ void	drawfunc_frame		(struct ei_widget_t*	widget,
                                ei_surface_t		surface,
                                ei_surface_t		pick_surface,
                                ei_rect_t*		clipper){
-
+    
+    //On récupère le frame
     ei_frame_cell* frame = get_frame_cell(widget);
-
+    
+    //On configure les localisations
     ei_point_t top_right = {0,0};
     ei_point_t bottom_left = {0,0};
     ei_point_t bottom_right = {0,0};
@@ -888,8 +892,11 @@ struct ei_image_cell* get_image_cell(struct ei_widget_t* widget){
 
 
 int is_widget_frame(uint32_t id, ei_surface_t surface){
+    //On récupère le frame de tête
     ei_frame_cell *temp = &frame_cell_head;
+    //On le considère en widget
     ei_widget_t* temp_widget = (ei_widget_t*)temp;
+    //Une démarche semblable sera adoptée pour les fonctions de cette même famille
     while (temp_widget != NULL){
         if (ei_map_rgba(surface, *(temp_widget->pick_color) ) == id){
             return 1;
@@ -947,8 +954,11 @@ int is_widget_toplevel(uint32_t id, ei_surface_t surface){
 
 
 struct ei_button_cell* button_from_id(uint32_t id, ei_surface_t surface){
+    //On récupère le button ded tête
     ei_button_cell *temp = &button_cell_head;
+    //Qui sera considéré comme widget
     ei_widget_t* temp_widget = (ei_widget_t*)temp;
+    //Une démarche semblable sera adoptée pour les fonction de cette même famille
     while (temp != NULL){
         if (ei_map_rgba(surface, *(temp_widget->pick_color) ) == id){
             return temp;
@@ -1015,8 +1025,10 @@ struct ei_image_cell* image_from_id(uint32_t id, ei_surface_t surface){
 
 
 int mouse_on_widget(struct ei_event_t event, ei_rect_t rect){
+    //On récupère les éléments de la position de la souris 
     int x = event.param.mouse.where.x;
     int y = event.param.mouse.where.y;
+    //On vérifie l'emplacement de la souris par rapport au widget
     if (x>= rect.top_left.x && x <= rect.top_left.x + rect.size.width){
         if (y>= rect.top_left.y && y <= rect.top_left.y + rect.size.height){
             return 1;
@@ -1025,7 +1037,7 @@ int mouse_on_widget(struct ei_event_t event, ei_rect_t rect){
 }
 
 void recursion_destroy (ei_widget_t* widget){
-
+    //On accède aux descendants du widget
     ei_widget_t* temp_child = widget->children_head;
     ei_widget_t* actual_child = widget->children_head;
     while(temp_child != NULL){
@@ -1046,6 +1058,7 @@ void recursion_destroy (ei_widget_t* widget){
 }
 
 int is_widget_close(ei_button_cell* button_cell){
+    //On considère le button comme widget
     ei_widget_t* widget = (ei_widget_t*)button_cell;
     if (strcmp(widget->parent->wclass->name, "toplevel") == 0){
         if (widget->content_rect->top_left.y <= widget->parent->content_rect->top_left.y + 30){
@@ -1061,6 +1074,7 @@ int is_widget_close(ei_button_cell* button_cell){
 void update_window(ei_surface_t root_surface, ei_surface_t offscreen, struct ei_widget_t root_widget){
 
     hw_surface_lock(root_surface);
+    //Dessin récursif défini plus haut
     dessin(&root_widget, root_surface, offscreen, NULL);
     hw_surface_unlock(root_surface);
     hw_surface_update_rects(root_surface, NULL);
