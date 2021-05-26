@@ -302,9 +302,11 @@ void releasefunc_frame(struct ei_widget_t* frame_wid){
 
     //Setting geometry parameters to NULL
     free(frame_wid->placer_params);
-    free(frame_wid->content_rect);
+    if (frame_wid->pick_id != 0) {
+        free(frame_wid->content_rect);
+        free(frame_wid);
+    }
 
-    free(frame_wid);
 
 }
 
@@ -899,11 +901,15 @@ int is_widget_button(uint32_t id, ei_surface_t surface){
     ei_button_cell *temp = &button_cell_head;
     ei_widget_t* temp_widget = (ei_widget_t*)temp;
     while (temp_widget != NULL){
-        if (ei_map_rgba(surface, *(temp_widget->pick_color) ) == id){
-            return 1;
+        if (temp_widget->pick_color != NULL) {
+            if (ei_map_rgba(surface, *(temp_widget->pick_color)) == id) {
+                return 1;
+            }
+            temp = temp->next;
+            temp_widget = (ei_widget_t *) temp;
+        } else {
+            return 0;
         }
-        temp = temp->next;
-        temp_widget = (ei_widget_t*)temp;
     }
     return 0;
 }

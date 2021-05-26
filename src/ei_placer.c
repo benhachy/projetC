@@ -105,6 +105,18 @@ void ei_placer_run(struct ei_widget_t* widget){
         }
     }
 
+    //In the case of a toplevel_widget, we make sure that it isn't too small
+    if (strcmp(widget->wclass->name,"toplevel") == 0){
+
+        if (actual_width < 100){
+            actual_width = 100;
+        }
+        if (actual_height < 100){
+            actual_height = 100;
+        }
+
+    }
+
     if (actual_anchor == ei_anc_center){
 
         new_rect->size.width = actual_width;

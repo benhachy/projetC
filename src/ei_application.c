@@ -132,7 +132,7 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
     root_widget.screen_location.size = main_window_size;
     root_widget.content_rect = &(root_widget.screen_location);
     root_widget.pick_id = 0;
-    root_widget.pick_color = (ei_color_t *) malloc(sizeof(ei_color_t)); //TO FREEEEEEE
+    root_widget.pick_color = (ei_color_t *) malloc(sizeof(ei_color_t));
     root_widget.pick_color->red = 0;
     root_widget.pick_color->blue = 0;
     root_widget.pick_color->green = 0;
@@ -143,6 +143,23 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
 
 void ei_app_free(void){
 
+    //We free all the widgets still existing
+    ei_widget_destroy(&root_widget);
+
+    hw_surface_free(root_surface);
+
+    //We free all the widget classes
+    ei_widgetclass_t* class_head = ei_widgetclass_from_name("frame");
+
+    ei_widgetclass_t* free_class_head = class_head;
+
+    while(class_head != NULL){
+        class_head = class_head->next;
+        free(free_class_head);
+        free_class_head = class_head;
+    }
+
+    hw_quit();
 }
 
 
@@ -234,41 +251,3 @@ ei_surface_t ei_app_root_surface(void){
 
 }
 
-/*
-    while (event.type != ei_ev_keydown) {
-        if (event.type == ei_ev_mouse_buttondown){
-            x = event.param.mouse.where.x;
-            y = event.param.mouse.where.y;
-            id_color = *(origin + (uint32_t)(x_max*y) + (uint32_t)x);
-            if(is_widget_button(id_color, offscreen) == 1){
-                button = button_from_id(id_color, offscreen);
-                if (is_widget_close(button) == 1){
-                    button->relief = ei_relief_sunken;
-                    update_window(root_surface, offscreen, root_widget);
-                    hw_event_wait_next(&event);
-                    while (event.type == ei_ev_mouse_move &&
-                           mouse_on_widget(event, button->widget->screen_location) == 1) {
-                           hw_event_wait_next(&event);
-                    }
-                    ei_widget_destroy(button->widget->parent);
-                    update_window(root_surface, offscreen, root_widget);
-                    continue;
-                } else {
-                    button->relief = ei_relief_sunken;
-                    update_window(root_surface, offscreen, root_widget);
-                    hw_event_wait_next(&event);
-                    while (event.type == ei_ev_mouse_move &&
-                           mouse_on_widget(event, button->widget->screen_location) == 1) {
-                        hw_event_wait_next(&event);
-                    }
-                    button->relief = ei_relief_raised;
-                    continue;
-                }
-            }
-
-        }
-        update_window(root_surface, offscreen, root_widget);
-        hw_event_wait_next(&event);
-
-    }
-     */

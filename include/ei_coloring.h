@@ -198,15 +198,4 @@ void        ei_color_3_neg_x_neg_y(ei_surface_t        surface,
                                    ei_linked_point_t*  end,
                                    ei_rect_t* clipper);
 
-/**
- * \brief  in_rect est une fonction qui retourne EI_TRUE si le point donné en paramètre est dans le rectangle et EI_FALSE sinon
- *
- * @param rect The rectangle
- * @param x The x-coordinate of the point
- * @param y The y-coordinate of the point
- *
- * @return A boolean value which is EI_TRUE when the point is in and EI_FALSE when it is out.
- * */
-ei_bool_t in_rect(int x, int y, ei_rect_t rect);
-
 #endif //PROJETC_IG_EI_COLORING_H

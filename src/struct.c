@@ -20,36 +20,6 @@
        __typeof__ (b) _b = (b); \
      _a > _b ? _a : _b; })
 
-void add_stack(Stack *stack, Segment *segment)
-{
-    Cell *new = malloc(sizeof(Cell*));
-    if (stack == NULL || segment == NULL)
-    {
-        exit(EXIT_FAILURE);
-    }
-
-    new->segment = segment;
-    new->next = stack->first;
-    stack->first = new;
-}
-
-Segment* pop(Stack *stack){
-    if (stack == NULL)
-    {
-        exit(EXIT_FAILURE);
-    }
-    Segment *popped_segment = (Segment*)malloc(sizeof(Segment));
-    Cell *popped_cell = stack->first;
-
-    if (stack != NULL && stack->first != NULL)
-    {
-        popped_segment = popped_cell->segment;
-        stack->first = popped_cell->next;
-        free(popped_cell);
-    }
-
-    return popped_segment;
-}
 
 void swap(int *a, int *b) {
     int t = *a;
@@ -88,12 +58,10 @@ void* swap_tca(struct tca_cell** tca, int i, int j) {
     cell_i->x_min = cell_j->x_min;
     cell_i->y_max = cell_j->y_max;
     cell_i->m = cell_j->m;
-    //cell_i->next = cell_j->next;
 
     cell_j->x_min = t->x_min;
     cell_j->y_max = t->y_max;
     cell_j->m = t->m;
-    //cell_j->next = t->next;
 
     free(t);
 }
@@ -224,7 +192,7 @@ void print_tc(struct tc_cell* start) {
 
 void* tca_append(struct tca_cell** tca, int y_max, float x_min, float m){
     if ((*tca) == NULL){
-        *tca = (struct tca_cell**) malloc(sizeof(struct tca_cell));
+        *tca = (struct tca_cell*) malloc(sizeof(struct tca_cell));
         (*tca)->y_max = y_max;
         (*tca)->x_min = x_min;
         (*tca)->m = m;
@@ -278,7 +246,7 @@ struct tc_cell* get_tc(ei_linked_point_t*	first_point){
     int max_y = max(s_array[n-2].start.y, s_array[n-2].end.y);
 
     struct tc_cell* tc_start = (struct tc_cell*)malloc(sizeof(struct tc_cell));
-    //tc_start->tc_carac = (struct tc_carac*) malloc(sizeof(struct tc_carac));
+
     struct tc_cell* tc_res = tc_start;
     int scan_start = min(s_array[0].start.y, s_array[0].end.y) - 1;
     int i = 0;
