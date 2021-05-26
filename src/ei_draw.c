@@ -17,6 +17,18 @@
      _a > _b ? _b : _a; })
 
 
+ei_bool_t in_rect2(int x, int y, ei_rect_t rect){
+
+    if ((x >= rect.top_left.x && y >= rect.top_left.y) && (x <= rect.top_left.x+rect.size.width && y <= rect.top_left.y+rect.size.height)){
+        return EI_TRUE;
+    }
+    else{
+        return EI_FALSE;
+    }
+}
+
+
+
 uint32_t		ei_map_rgba		(ei_surface_t surface, ei_color_t color){
     int ig = 0, ia =0, ir = 0, ib = 0;
     //We put the color indices in their respective variables
@@ -166,6 +178,7 @@ void			ei_draw_polygon		(ei_surface_t			surface,
         if (c == 0 ){
             tca_cell_head = tca;
         }
+        c++;
     }
     y++;
 
@@ -222,7 +235,9 @@ void			ei_draw_polygon		(ei_surface_t			surface,
             int x_start = (int)floor(tca_temp->x_min + 0.5);
             int x_end = (int)floor(tca_temp2->x_min + 0.5);
             for (int i = x_start; i <= x_end; i++){
-                ei_color_pixel(surface, int_color, i, y);
+                if ((clipper == NULL) || in_rect2(i, y, *clipper) == EI_TRUE ) {
+                    ei_color_pixel(surface, int_color, i, y);
+                }
             }
             tca_temp = tca_temp->next->next;
             if (tca_temp != NULL) {

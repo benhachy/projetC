@@ -9,21 +9,14 @@
 #include "ei_types.h"
 #include "ei_draw_widget.h"
 #include "ei_event.h"
-//#include "ei_utils_memory.h"
 
-/*
-static uint32_t counter_pick_id = 0;
-static ei_axis_set_t axis = ei_axis_none;
-static ei_bool_t false = EI_FALSE;
-extern ei_surface_t* offscreen;
-extern ei_widgetlist_t* widgetlist;
-*/
 
 
 int red_id = 0;
 
 int corner_default = 10;
 int* corner_default_ptr = &corner_default;
+ei_anchor_t text_anchor_default = ei_anc_northwest;
 
 ei_widget_t*    ei_widget_create(ei_widgetclass_name_t	class_name,
                                  ei_widget_t*		parent,
@@ -283,8 +276,13 @@ void			ei_button_configure		(ei_widget_t*		widget,
         if (text_anchor != NULL) {
             text_widget->placer_params->anchor = text_anchor;
             text_widget->placer_params->anchor_data = *text_anchor;
+        } else {
+            text_widget->placer_params->anchor = &text_anchor_default;
+            text_widget->placer_params->anchor_data = text_anchor_default;
         }
         ei_text_cell *text_cell = get_text_cell(text_widget);
+
+
 
         text_cell->color = text_color;
         text_cell->text = text;
@@ -293,11 +291,12 @@ void			ei_button_configure		(ei_widget_t*		widget,
         } else {
             text_cell->text_font = ei_default_font;
         }
-        float r = 0.35;
-        float y_rel = 0.25;
+        hw_text_compute_size(*text, text_cell->text_font, text_width, text_height);
+        float r = 0.1;
+        float y_rel = 0.1;
         float* ptr = &r;
         float* ptr_y = &y_rel;
-        hw_text_compute_size(*text, text_cell->text_font, text_width, text_height);
+
         text_widget->placer_params->rx_data = r;
         text_widget->placer_params->ry_data = y_rel;
         text_widget->placer_params->rx = ptr;

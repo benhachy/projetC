@@ -295,6 +295,8 @@ void  draw_button(ei_surface_t surface, ei_surface_t offscreen, ei_rect_t*	clipp
 
     ei_linked_point_t* inside_frame = rounded_frame(small_rect, r, 1);
     ei_linked_point_t* offscreen_frame;
+    ei_linked_point_t* point_freer;
+
 
     //Dessin dans root_window
     if (param == 0) {
@@ -302,12 +304,72 @@ void  draw_button(ei_surface_t surface, ei_surface_t offscreen, ei_rect_t*	clipp
         ei_draw_polygon(surface, lower_frame, darker_color, clipper);
         ei_draw_polygon(surface, inside_frame, color, clipper);
         offscreen_frame= rounded_frame(rect, r, 1);
+
+
+
+        //Freeing the upper frame points
+        point_freer = upper_frame;
+        while(upper_frame != NULL){
+            upper_frame = upper_frame->next;
+            free(point_freer);
+            point_freer = upper_frame;
+        }
+        //Freeing the lower frame points
+        point_freer = lower_frame;
+        while(lower_frame != NULL){
+            lower_frame = lower_frame->next;
+            free(point_freer);
+            point_freer = lower_frame;
+        }
+        //Freeing the inside frame points
+        point_freer = inside_frame;
+        while(inside_frame != NULL){
+            inside_frame = inside_frame->next;
+            free(point_freer);
+            point_freer = inside_frame;
+        }
+
+
     } else if(param == 1) {
         ei_draw_polygon(surface, upper_frame, darker_color, clipper);
         ei_draw_polygon(surface, lower_frame, lighter_color, clipper);
         ei_draw_polygon(surface, inside_frame, color, clipper);
         offscreen_frame = rounded_frame(rect, r, 1);
+
+
+
+        //Freeing the upper frame points
+        point_freer = upper_frame;
+        while(upper_frame != NULL){
+            upper_frame = upper_frame->next;
+            free(point_freer);
+            point_freer = upper_frame;
+        }
+        //Freeing the lower frame points
+        point_freer = lower_frame;
+        while(lower_frame != NULL){
+            lower_frame = lower_frame->next;
+            free(point_freer);
+            point_freer = lower_frame;
+        }
+        //Freeing the inside frame points
+        point_freer = inside_frame;
+        while(inside_frame != NULL){
+            inside_frame = inside_frame->next;
+            free(point_freer);
+            point_freer = inside_frame;
+        }
+
+
     } else if (param == 2) {
+        lighter_color.red = 231;
+        lighter_color.blue = 60;
+        lighter_color.green = 76;
+        darker_color.red = 207;
+        darker_color.blue = 15;
+        darker_color.green = 0;
+
+
         ei_point_t center = {rect.top_left.x + 11, rect.top_left.y + 11};
         ei_linked_point_t* cercle = circle(center, 8, 0, 359);
         ei_linked_point_t* half_circle1 = arc(center, 11, 45, 235);
@@ -316,7 +378,40 @@ void  draw_button(ei_surface_t surface, ei_surface_t offscreen, ei_rect_t*	clipp
         ei_draw_polygon(surface, half_circle1, lighter_color, clipper);
         ei_draw_polygon(surface, cercle, color, clipper);
         offscreen_frame = circle(center, 11, 0, 359);
+
+
+        //Freeing the upper frame points
+        point_freer = half_circle2;
+        while(half_circle2 != NULL){
+            half_circle2 = half_circle2->next;
+            free(point_freer);
+            point_freer = half_circle2;
+        }
+        //Freeing the lower frame points
+        point_freer = half_circle1;
+        while(half_circle1 != NULL){
+            half_circle1 = half_circle1->next;
+            free(point_freer);
+            point_freer = half_circle1;
+        }
+        //Freeing the inside frame points
+        point_freer = cercle;
+        while(cercle != NULL){
+            cercle = cercle->next;
+            free(point_freer);
+            point_freer = cercle;
+        }
+
+
     } else {
+        lighter_color.red = 231;
+        lighter_color.blue = 60;
+        lighter_color.green = 76;
+        darker_color.red = 207;
+        darker_color.blue = 15;
+        darker_color.green = 0;
+
+
         ei_point_t center = {rect.top_left.x +11, rect.top_left.y + 11};
         ei_linked_point_t* cercle = circle(center, 8, 0, 359);
         ei_linked_point_t* half_circle1 = arc(center, 11, 45, 235);
@@ -325,11 +420,35 @@ void  draw_button(ei_surface_t surface, ei_surface_t offscreen, ei_rect_t*	clipp
         ei_draw_polygon(surface, half_circle1, darker_color, clipper);
         ei_draw_polygon(surface, cercle, color, clipper);
         offscreen_frame = circle(center, 11, 0, 359);
+
+
+        point_freer = half_circle2;
+        while(half_circle2 != NULL){
+            half_circle2 = half_circle2->next;
+            free(point_freer);
+            point_freer = half_circle2;
+        }
+        //Freeing the lower frame points
+        point_freer = half_circle1;
+        while(half_circle1 != NULL){
+            half_circle1 = half_circle1->next;
+            free(point_freer);
+            point_freer = half_circle1;
+        }
+        //Freeing the inside frame points
+        point_freer = cercle;
+        while(cercle != NULL){
+            cercle = cercle->next;
+            free(point_freer);
+            point_freer = cercle;
+        }
     }
 
     //Dessin dans l'offscreen
     ei_draw_polygon(offscreen, offscreen_frame,off_color, clipper);
 
-    //Upper frame, lower frame and inside frame need to be freed
+
+
+
 
 }

@@ -19,8 +19,8 @@ void ei_placer_run(struct ei_widget_t* widget){
     ei_rect_t  new_parent_location = widget->parent->screen_location;
     ei_point_t parent_top_left = widget->parent->screen_location.top_left;
 
-    int actual_width = 0;
-    int actual_height = 0;
+    int actual_width = 10;
+    int actual_height = 10;
 
     if (strcmp(widget->wclass->name,"button") == 0){
         actual_width = 100;
@@ -121,8 +121,8 @@ void ei_placer_run(struct ei_widget_t* widget){
 
         new_rect->size.width = actual_width;
         new_rect->size.height = actual_height;
-        new_rect->top_left.x = actual_x - actual_width/2;
-        new_rect->top_left.y = actual_y - actual_height/2;
+        new_rect->top_left.x = actual_x + new_parent_location.size.width/2;
+        new_rect->top_left.y = actual_y + new_parent_location.size.height/2;
 
         widget->content_rect = new_rect;
         widget->screen_location = *new_rect;
@@ -191,12 +191,10 @@ void ei_placer_run(struct ei_widget_t* widget){
 
         widget->content_rect = new_rect;
         widget->screen_location = *new_rect;
-        printf("piou");
     }
 
     if(strcmp(widget->wclass->name,"button")==0){
         button_cell->widget = *widget;
-        printf("piou");
     }
 }
 

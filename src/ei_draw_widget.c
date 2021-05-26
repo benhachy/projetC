@@ -645,7 +645,11 @@ ei_bool_t ei_button_handlefunc_t (struct ei_widget_t*	widget,
     ei_button_cell*  button = (ei_button_cell*)widget;
     if (mouse_on_widget(*event, *(widget->content_rect)) == 1) {
         if (event->type == ei_ev_mouse_buttondown) {
-            button->relief = ei_relief_sunken; //Pas besoin de disjonction de cas
+            button->relief = ei_relief_sunken;
+            //If the button has a callback function we call it
+            if (button->callback != NULL){
+                button->callback(widget, event, button->user_param);
+            }
             return EI_TRUE;
         } else if (event->type == ei_ev_mouse_buttonup) {
             if (is_widget_close(button) == 1) {
