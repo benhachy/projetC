@@ -14,6 +14,7 @@
 
 static int run = 1;
 
+//On initialise les attributs du widget racine
 struct ei_widget_t root_widget =  {
         NULL,
         0,
@@ -34,14 +35,16 @@ struct ei_widget_t root_widget =  {
         NULL
 };
 
+//On fait de même pour la surface racine et l'offscreen
 ei_surface_t root_surface = NULL;
-
 ei_surface_t offscreen = NULL;
 
 
 void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
      
+    //On commence par initialiser le hardware
     hw_init();
+    
     //On enregistre la classe de widgets frame
     ei_widgetclass_t *frame = (ei_widgetclass_t*) malloc(sizeof(ei_widgetclass_t));
     char frame_name[20] = "frame";
@@ -109,6 +112,7 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
 
     ei_widgetclass_register(toplevel);
 
+    //On enregistre la classe de widgets image
     ei_widgetclass_t *image = (ei_widgetclass_t*) malloc(sizeof(ei_widgetclass_t));
     char image_name[20] = "image";
     for (int i = 0; i < 20; i++){
@@ -124,9 +128,11 @@ void ei_app_create(ei_size_t main_window_size, ei_bool_t fullscreen){
 
     ei_widgetclass_register(image);
 
-
+    //On crée la fenêtre racine
     ei_surface_t main_window = hw_create_window(main_window_size, fullscreen);
     offscreen = hw_surface_create(main_window,main_window_size, 0);
+    
+    //On configure le widget racine
     root_surface = main_window;
     root_widget.wclass = ei_widgetclass_from_name("frame");
     root_widget.screen_location.size = main_window_size;
@@ -175,11 +181,12 @@ void ei_app_run(void){
     ei_bool_t got_handled = EI_FALSE;
     ei_event_t		event;
     uint32_t* origin = (uint32_t*)hw_surface_get_buffer(offscreen);
+    
     //Dessin récursif des widgets
     update_window(root_surface, offscreen, root_widget);
     event.type = ei_ev_none;
-
     hw_event_wait_next(&event);
+    
     while(event.type != ei_ev_keydown) {
         got_handled = EI_FALSE;
         x = event.param.mouse.where.x;
@@ -195,7 +202,7 @@ void ei_app_run(void){
         }
 
         if (got_handled != EI_TRUE){
-
+            //Si la classe du widget est button
             if (is_widget_button(id_color, offscreen) == 1) {
                 button = &(button_from_id(id_color, offscreen))->widget;
                 got_handled = button->wclass->handlefunc(button, &event);
