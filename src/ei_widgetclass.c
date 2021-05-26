@@ -8,7 +8,7 @@
 #include <string.h>
 #include "ei_draw_widget.h"
 
-
+//On initialise la tête de la liste 
 ei_widgetclass_t head_class = {
         "head",
         NULL,
@@ -24,11 +24,12 @@ ei_widgetclass_t* head_class_p = &head_class;
 
 
 void			ei_widgetclass_register		(ei_widgetclass_t* widgetclass){
-
+   
     ei_widgetclass_t *temp = &head_class;
     while(temp->next != NULL){
         temp = temp->next;
     }
+    //On ajoute la classe en queue de liste
     temp->next = widgetclass;
     temp->next->next = NULL;
 }
