@@ -203,7 +203,13 @@ struct ei_widget_t* allowfunc_toplevel(void);
 struct ei_widget_t* allowfunc_image(void);
 
 
-
+/**
+ * @brief	Donne l'élément de la sturcture correspondante à partir du widget
+ *
+ * @param	widget	
+ *
+ * @return	L'élément de la structure précisée
+ */
 
 
 struct ei_frame_cell* get_frame_cell(struct ei_widget_t* widget);
@@ -235,7 +241,14 @@ int is_widget_text(uint32_t id, ei_surface_t surface);
 int is_widget_toplevel(uint32_t id, ei_surface_t surface);
 
 
-
+/**
+ * @brief	Donne l'élément de la sturcture correspondante à partir de l'id et
+               de la surface offscreen
+ *
+ * @param	id, surface	
+ *
+ * @return	L'élément de la structure précisée
+ */
 
 struct ei_button_cell* button_from_id(uint32_t id, ei_surface_t surface);
 
@@ -258,8 +271,19 @@ struct ei_image_cell* image_from_id(uint32_t id, ei_surface_t surface);
 
 int mouse_on_widget(struct ei_event_t event, ei_rect_t rect);
 
+/**
+ * @brief	Destruction de la hiérarchie d'un widget
+ */
 void recursion_destroy(ei_widget_t* widget);
 
+/**
+ * @brief	Détermine si un widget est un boutton de fermeture de toplevel
+ *
+ * @param      button_cell 	
+ *
+ * @return	1 si c'est le cas, 0 sinon
+ */
+ 
 int is_widget_close(ei_button_cell* button_cell);
 
 /**
@@ -271,6 +295,10 @@ int is_widget_close(ei_button_cell* button_cell);
  */
  
 void update_window(ei_surface_t root_surface, ei_surface_t offscreen, struct ei_widget_t root_widget);
+
+/**
+ * @brief	Retourne la tête de liste de la structure initialisée
+ */
 
 struct ei_button_cell get_button_cell_head(void);
 
