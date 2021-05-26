@@ -45,8 +45,8 @@ int main(int argc, char** argv)
 	ei_color_t	root_bgcol		= {0x52, 0x7f, 0xb4, 0xff};
 
 	ei_widget_t*	button;
-	ei_size_t	button_size		= {30,30};
-	int		button_corner_radius	= 10;
+	ei_size_t	button_size		= {300,200};
+	int		button_corner_radius	= 40;
 	int		button_x		= 150;
 	int		button_y		= 200;
 	ei_color_t	button_color		= {0x88, 0x88, 0x88, 0xff};

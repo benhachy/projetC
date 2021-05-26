@@ -17,6 +17,7 @@ else{
 }
 }
 
+
 void        ei_color_pixel(ei_surface_t    surface,
                            uint32_t 	   color,
                            int             x,
@@ -24,8 +25,7 @@ void        ei_color_pixel(ei_surface_t    surface,
     uint32_t* origin = (uint32_t*)hw_surface_get_buffer(surface);
     ei_size_t surface_size = hw_surface_get_size(surface);
     int x_max = surface_size.width;
-    int y_max = surface_size.height;
-    origin = origin + (uint32_t)(x_max*y) + (uint32_t)x;
+    origin = origin + (uint32_t)(x_max*y) + (uint32_t)x; // Pointeur vers le pixel de coordonées x,y
     *origin = color;
 }
 
@@ -42,7 +42,9 @@ void        ei_color_1_pos_x_pos_y(ei_surface_t        surface,
     int curr_y = start->point.y;
     int error = 0;
     int end_x = end->point.x;
+    // Implémentation d'algorithme de Bresenham
     while(curr_x != end_x) {
+        // La boucle if qui suit sert au clippage
         if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == EI_TRUE ) {
             ei_color_pixel(surface, color, curr_x, curr_y);
             curr_x++;
@@ -78,7 +80,9 @@ void        ei_color_1_pos_x_neg_y(ei_surface_t        surface,
     int curr_y = start->point.y;
     int error = 0;
     int end_x = end->point.x;
+    // Implémentation d'algorithme de Bresenham
     while(curr_x != end_x) {
+        // La boucle if qui suit sert au clippage
         if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == EI_TRUE ){
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_x++;
@@ -114,7 +118,9 @@ void        ei_color_1_neg_x_pos_y(ei_surface_t        surface,
     int curr_y = start->point.y;
     int error = 0;
     int end_x = end->point.x;
+    // Implémentation d'algorithme de Bresenham
     while(curr_x != end_x) {
+        // La boucle if qui suit sert au clippage
         if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == EI_TRUE ){
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_x--;
@@ -150,7 +156,9 @@ void        ei_color_1_neg_x_neg_y(ei_surface_t        surface,
     int curr_y = start->point.y;
     int error = 0;
     int end_x = end->point.x;
+    // Implémentation d'algorithme de Bresenham
     while(curr_x != end_x) {
+        // La boucle if qui suit sert au clippage
         if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == EI_TRUE) {
             ei_color_pixel(surface, color, curr_x, curr_y);
             curr_x--;
@@ -186,7 +194,9 @@ void        ei_color_2_pos_x_pos_y(ei_surface_t        surface,
     int curr_y = start->point.y;
     int error = 0;
     int end_y = end->point.y;
+    // Implémentation d'algorithme de Bresenham
     while(curr_y != end_y) {
+        // La boucle if qui suit sert au clippage
         if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == EI_TRUE ){
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_y++;
@@ -221,7 +231,9 @@ void        ei_color_2_pos_x_neg_y(ei_surface_t        surface,
     int curr_y = start->point.y;
     int error = 0;
     int end_y = end->point.y;
+    // Implémentation d'algorithme de Bresenham
     while(curr_y != end_y) {
+        // La boucle if qui suit sert au clippage
         if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == EI_TRUE ){
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_y--;
@@ -256,7 +268,9 @@ void        ei_color_2_neg_x_pos_y(ei_surface_t        surface,
     int curr_y = start->point.y;
     int error = 0;
     int end_y = end->point.y;
+    // Implémentation d'algorithme de Bresenham
     while(curr_y != end_y) {
+        // La boucle if qui suit sert au clippage
         if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == EI_TRUE ){
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_y++;
@@ -291,7 +305,9 @@ void        ei_color_2_neg_x_neg_y(ei_surface_t        surface,
     int curr_y = start->point.y;
     int error = 0;
     int end_y = end->point.y;
+    // Implémentation d'algorithme de Bresenham
     while(curr_y != end_y) {
+        // La boucle if qui suit sert au clippage
         if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == EI_TRUE ){
         ei_color_pixel(surface, color, curr_x, curr_y);
         curr_y--;
@@ -319,8 +335,8 @@ void        ei_color_3_pos_x_pos_y(ei_surface_t        surface,
                                    ei_rect_t* clipper){
     int curr_x = start->point.x;
     int curr_y = start->point.y;
-    while(curr_x != end->point.x)
-    {
+    while(curr_x != end->point.x){
+        // La boucle if qui suit sert au clippage
         if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == EI_TRUE ){
     ei_color_pixel(surface, color, curr_x, curr_y);
     curr_x++;
@@ -344,6 +360,7 @@ void        ei_color_3_pos_x_neg_y(ei_surface_t        surface,
     int curr_y = start->point.y;
     
     while(curr_x != end->point.x){
+        // La boucle if qui suit sert au clippage
         if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == EI_TRUE ){
     ei_color_pixel(surface, color, curr_x, curr_y);
     curr_x++;
@@ -367,6 +384,7 @@ void        ei_color_3_neg_x_pos_y(ei_surface_t        surface,
     int curr_y = start->point.y;
     
     while(curr_x != end->point.x){
+        // La boucle if qui suit sert au clippage
         if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == EI_TRUE ){
     ei_color_pixel(surface, color, curr_x, curr_y);
     curr_x--;
@@ -390,6 +408,7 @@ void        ei_color_3_neg_x_neg_y(ei_surface_t        surface,
     int curr_y = start->point.y;
     
     while(curr_x != end->point.x){
+        // La boucle if qui suit sert au clippage
         if (clipper == NULL || in_rect(curr_x, curr_y, *clipper) == EI_TRUE ){
        ei_color_pixel(surface, color, curr_x, curr_y);
         curr_x--;

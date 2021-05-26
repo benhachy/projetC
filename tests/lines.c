@@ -7,7 +7,7 @@
 #include "ei_draw.h"
 #include "ei_types.h"
 #include "ei_event.h"
-
+#include "ei_coloring.h"
 
 
 /* test_line --
@@ -123,6 +123,23 @@ void test_dot(ei_surface_t surface, ei_rect_t* clipper)
 	ei_draw_polyline(surface, pts, color, clipper);
 }
 
+void test_copy(ei_surface_t destination){
+    ei_size_t size = ei_size(200,200);
+    ei_surface_t source = hw_surface_create(destination,size,EI_FALSE);
+    ei_color_t color= {255,0,255,0};
+    ei_rect_t *dst_rect;
+    dst_rect = (ei_rect_t*) malloc(sizeof(ei_rect_t));
+    dst_rect ->size = ei_size(200,200);
+    dst_rect ->top_left = ei_point(100,100);
+
+
+
+    ei_fill(source,&color,NULL);
+
+
+    ei_copy_surface(destination,dst_rect,source,NULL,EI_TRUE);
+
+}
 
 
 /*
@@ -136,9 +153,16 @@ int main(int argc, char** argv)
 	ei_surface_t		main_window	= NULL;
 	ei_color_t		white		= { 0xff, 0xff, 0xff, 0xff };
 	ei_rect_t*		clipper_ptr	= NULL;
-//	ei_rect_t		clipper		= ei_rect(ei_point(200, 150), ei_size(400, 300));
-//	clipper_ptr		= &clipper;
+	ei_rect_t		clipper		= ei_rect(ei_point(200, 150), ei_size(100, 100));
+	clipper_ptr		= &clipper;
 	ei_event_t		event;
+
+    char*		text = "Yey";
+    ei_point_t* where ;
+    where = (ei_point_t *)malloc(sizeof(ei_point_t));
+    where->x = 400;
+    where->y = 300;
+    ei_color_t color = {0,52,0,0};
 
 	hw_init();
 		
@@ -146,14 +170,16 @@ int main(int argc, char** argv)
 	
 	/* Lock the drawing surface, paint it white. */
 	hw_surface_lock	(main_window);
-	ei_fill		(main_window, &white, clipper_ptr);
+
+	ei_fill		(main_window, &color, NULL);
 
 	/* Draw polylines. */
 	test_line	(main_window, clipper_ptr);
 //	test_octogone	(main_window, clipper_ptr);
 //	test_square	(main_window, clipper_ptr);
 //	test_dot	(main_window, clipper_ptr);
-	
+//  ei_draw_text(main_window, where, text, ei_default_font, color,NULL);
+     test_copy(main_window);
 	/* Unlock and update the surface. */
 	hw_surface_unlock(main_window);
 	hw_surface_update_rects(main_window, NULL);
